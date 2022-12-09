@@ -11,6 +11,7 @@ type alias Model =
     { device : Element.DeviceClass
     , directory : Maybe Directory
     , events : Dict String EventLoadState
+    , eventsLoaded : Int
     , menu : MenuItem
     , showMenuBar : Bool
     }
@@ -147,8 +148,8 @@ eventTypeDecoder state =
                     D.succeed Message
                 "state" ->
                     case state of
-                        Just s ->
-                            D.succeed (State s)
+                        Just st ->
+                            D.succeed (State st)
                         Nothing ->
                             D.fail "Missing state explanation."
                 "ephemeral" ->
