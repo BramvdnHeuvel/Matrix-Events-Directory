@@ -2,11 +2,13 @@ module Loader exposing (..)
 {-| The Loader module loads all JSON files from the `content/` folder.
 -}
 
-import Msg exposing (Event, Msg(..), directoryDecoder, eventDecoder)
+import Browser.Dom as Dom
 import Http
 import Json.Decode as D
+import Msg exposing (Event, Msg(..), directoryDecoder, eventDecoder)
 import Process
 import Task
+import Widget.Layout
 
 {-| Get the contents of `dir.json` as a directory for all events.
 -}
@@ -35,7 +37,22 @@ getEventAfterTimeout timeout eventType =
                 , resolver = Http.stringResolver jsonResolver
                 , timeout = Nothing
                 })
-    |> Task.attempt EventReceived
+    |> Task.attempt (EventReceived eventType)
+
+{-| Get the size of the viewport.
+-}
+getViewportSize : Cmd Msg
+getViewportSize =
+    Dom.getViewport
+    |> Task.map
+        (\window ->
+            { height = round window.viewport.height
+            , width = round window.viewport.width
+            }
+        )
+    |> Task.map Widget.Layout.getDeviceClass
+    |> Task.perform WindowSize
+
 
 {-| Decode an event from a HTTP response string.
 -}

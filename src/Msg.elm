@@ -72,7 +72,7 @@ type ObjectType
 type MenuItem
     = Home
     | Search String
-    | LookingAtEvent Event
+    | LookingAtEvent String Event
     | BrowseEventSetList
     | BrowseEventSet EventSet
     | BrowseEvent EventSet Event
@@ -83,7 +83,8 @@ type MenuItem
 type Msg
     = ChooseMenuOption Int
     | DirectoryReceived (Result Http.Error Directory)
-    | EventReceived (Result Http.Error Event)
+    | EventReceived String (Result Http.Error Event)
+    | SearchEvent String
     | ToggleMenuBar
     | ViewMenu MenuItem
     | WaitThenRequestEvent String Int

@@ -2,9 +2,13 @@ module View exposing (..)
 
 import Color
 import Element exposing (Element, el, text)
+import Element.Background as Background
+import Element.Events as Events
 import Element.Font as Font
+import Element.Input as Input
 import Msg exposing (..)
 import Layout
+import Search
 import Widget
 import Widget.Material
 import Widget.Material.Color
@@ -34,9 +38,9 @@ mainContent model =
             homePage model
 
         Search s ->
-            Element.none -- TODO
+            searchPage model s
 
-        LookingAtEvent e ->
+        LookingAtEvent s e ->
             Element.none
         
         BrowseEventSetList ->
@@ -51,11 +55,18 @@ mainContent model =
         About ->
             aboutPage
 
+{- REFERENCE FUNCTIONS -}
+
 p : List (Element msg) -> Element msg
 p = Element.paragraph []
 
 color : Color.Color -> Element.Attr decorative msg
 color = Widget.Material.Color.fromColor >> Font.color
+
+backgroundColor : Color.Color -> Element.Attr decorative msg
+backgroundColor = Widget.Material.Color.fromColor >> Background.color
+
+{- PAGE FUNCTIONS -}
 
 homePage : Model -> Element Msg
 homePage model =
@@ -90,6 +101,20 @@ homePage model =
     ]
     |> Element.column [ Element.width Element.fill, Element.spacingXY 0 30 ]
 
+searchPage : Model -> String -> Element Msg
+searchPage model query =
+    [ Input.search [ Element.padding 30 ]
+        { onChange = SearchEvent
+        , text = query
+        , placeholder = Just (Input.placeholder [] (text "Look for events here..."))
+        , label = Input.labelHidden "Event lookup search bar"
+        }
+    , Search.results model query
+        |> List.map (\e -> eventPreview (ViewMenu <| LookingAtEvent query e) e)
+        |> Element.column []
+    ]
+    |> Element.column []
+
 aboutPage : Element Msg
 aboutPage =
     [ Layout.h2 <| text "About Matrix events"
@@ -110,3 +135,16 @@ aboutPage =
     , p [ Layout.bold <| text "That will hopefully encourage more interoperability!"]
     ]
     |> Element.column [ Element.width Element.fill, Element.spacingXY 0 30 ]
+
+{- FUNCTIONS THAT RENDER TYPES -}
+
+eventPreview : Msg -> Event -> Element Msg
+eventPreview onClick e =
+    [ Layout.h2 <| text e.name
+    , p [ text e.description ]
+    ]
+    |> Element.column 
+        [ Element.width (Element.fill |> Element.maximum 300)
+        , Events.onClick onClick
+        ]
+
