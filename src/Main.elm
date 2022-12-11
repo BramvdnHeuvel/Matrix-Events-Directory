@@ -9,6 +9,7 @@ import Html exposing (Html)
 import Layout
 import Loader
 import Msg exposing (..)
+import Random
 import View
 import Widget.Layout
 import List exposing (all)
@@ -58,24 +59,46 @@ update msg model =
             case mdir of
                 Ok d ->
                     ( { model | directory = Just d }
-                    , Cmd.batch
-                        []
+                    , d |> .all
+                        |> List.map WaitThenRequestEvent
+                        |> List.map (\m -> 
+                            d.all
+                            |> List.length
+                            |> Random.int 1
+                            |> Random.generate m
+                        )
+                        |> Cmd.batch
                     )
                 
                 Err _ ->
                     ( model, Cmd.none )
         
+        DoNothing ->
+            ( model, Cmd.none )
+        
         EventReceived name event ->
-            case event of
-                Ok e ->
-                    ( { model | events = Dict.insert name (Loaded e) model.events }
-                    , Cmd.none
-                    )
-                
-                Err e ->
-                    ( { model | events = Dict.insert name (LoadingFailed e) model.events }
-                    , Cmd.none
-                    )
+            let
+                dictValue : EventLoadState
+                dictValue =
+                    case event of
+                        Ok e ->
+                            Loaded e
+                        Err e ->
+                            LoadingFailed False name e
+            in
+                ( { model
+                    | events = Dict.insert name dictValue model.events 
+                    , eventsLoaded =
+                        case Dict.get name model.events of
+                            Just (Loaded _) ->
+                                model.eventsLoaded
+                            Just (LoadingFailed _ _ _) ->
+                                model.eventsLoaded
+                            _ ->
+                                model.eventsLoaded + 1
+                    }
+                , Cmd.none
+                )
         
         SearchEvent query ->
             let
@@ -97,12 +120,24 @@ update msg model =
             else
                 Cmd.none
             )
+        
+        ToggleEventError name ->
+            case Dict.get name model.events of
+                Just (LoadingFailed b _ err) ->
+                    ( { model
+                      | events = Dict.insert name (LoadingFailed (not b) name err) model.events
+                      }
+                    , Cmd.none
+                    )
+                _ ->
+                    ( model, Cmd.none )
 
         ToggleMenuBar ->
             ( { model | showMenuBar = not model.showMenuBar }, Cmd.none )
+            |> Debug.log "Current state of affairs: "
         
         ViewMenu menu ->
-            ( { model | menu = menu }, Cmd.none )
+            ( { model | showMenuBar = False, menu = menu }, Cmd.none )
         
         WaitThenRequestEvent e t ->
             ( model, Loader.getEventAfterTimeout t e )
@@ -130,7 +165,7 @@ view model =
     |> Element.layout
         ( (Layout.noordstarWhite |> View.backgroundColor ) ::
             (if model.showMenuBar then
-                [] -- View.leftSideBar model
+                View.leftSideBar model
             else
                 []
             )

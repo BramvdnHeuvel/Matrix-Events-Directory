@@ -2,6 +2,7 @@ module Layout exposing (..)
 
 import Color exposing (Color, rgb255)
 import Element exposing (Element, el)
+import Element.Background as Background
 import Element.Font as Font
 import Element.Region as Region
 import Material.Icons.Types as T
@@ -10,11 +11,25 @@ import Widget.Material exposing (Palette)
 import Widget
 import Widget.Icon
 
+{-| Attributes of a card
+-}
+cardAttributes : List (Element.Attribute Msg.Msg)
+cardAttributes =
+    Widget.Material.cardAttributes primaryPalette ++
+    [Background.color <| Element.rgb255 255 255 255] 
+
 {-| Get an icon from the Material library
 -}
 getIcon : T.Icon Msg.Msg -> Widget.Icon.Icon Msg.Msg
 getIcon =
     Widget.Icon.elmMaterialIcons T.Color
+
+{-| Display an icon as a button -}
+iconButton : { text : String, icon : T.Icon Msg.Msg, onPress : Maybe Msg.Msg } -> Element Msg.Msg
+iconButton data =
+    Widget.iconButton
+        (Widget.Material.textButton primaryPalette)
+        { text = data.text, icon = getIcon data.icon, onPress = data.onPress }
 
 {-| Get a progress loading bar -}
 loader : Maybe Float -> Element msg

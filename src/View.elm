@@ -6,12 +6,16 @@ import Element.Background as Background
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
+import Http
+import Material.Icons as Icons
 import Msg exposing (..)
 import Layout
 import Search
 import Widget
+import Widget.Layout
 import Widget.Material
 import Widget.Material.Color
+import Dict
 
 {-| Create the bar at the top of the page.
 -}
@@ -29,6 +33,68 @@ topAppBar model =
         , search = Nothing
         }
 
+{-| Sidebar on the left that pops up when you view the menu
+-}
+leftSideBar : Model -> List (Element.Attribute Msg)
+leftSideBar model =
+    { title = el [ Element.padding 15 ] (Layout.h2 <| text "Matrix events")
+    , onDismiss = ToggleMenuBar
+    , menu =
+        { selected = Just <|
+            case model.menu of
+                Home ->
+                    0
+                Search _ ->
+                    1
+                LookingAtEvent _ _ ->
+                    1
+                BrowseEventSetList ->
+                    2
+                BrowseEventSet _ ->
+                    2
+                BrowseEvent _ _ ->
+                    2
+                About ->
+                    3
+        , options =
+            [ { text = "Home"
+              , icon = Layout.getIcon Icons.home
+              }
+            , { text = "Search"
+              , icon = Layout.getIcon Icons.search
+              }
+            , { text = "Browse"
+              , icon = Layout.getIcon Icons.view_list
+              }
+            , { text = "About"
+              , icon = Layout.getIcon Icons.description
+              }
+            ]
+        , onSelect = 
+            (\i ->
+                ( case i of
+                    0 ->
+                        Just Home
+                    1 ->
+                        Just (Search "")
+                    2 ->
+                        Just BrowseEventSetList
+                    3 ->
+                        Just About
+                    _ ->
+                        Nothing
+                )
+                |> Maybe.map ViewMenu
+            )
+        }
+    }
+    |> Widget.Layout.leftSheet
+        { button = Widget.Material.selectItem Layout.primaryPalette
+        , sheet = Widget.Material.sideSheet Layout.primaryPalette
+        }
+    |> List.singleton
+    |> Widget.singleModal
+
 {-| The main content of the page
 -}
 mainContent : Model -> Element Msg
@@ -41,7 +107,10 @@ mainContent model =
             searchPage model s
 
         LookingAtEvent s e ->
-            Element.none
+            [ navigationBar [ ( "Search", Search s ), ( e.name, LookingAtEvent s e ) ]
+            , Element.none
+            ]
+            |> Element.column []
         
         BrowseEventSetList ->
             Element.none
@@ -92,11 +161,14 @@ homePage model =
                 |> List.singleton
                 |> p
     , if Maybe.map (.all >> List.length) model.directory == Just model.eventsLoaded then
-        Element.none
+        model.events
+        |> Dict.values
+        |> List.map failedEvent
+        |> Element.column [Element.width (Element.fill |> Element.maximum 500), Element.centerX]
     else
         model.directory
-        |> Maybe.map (\_ -> model.eventsLoaded)
-        |> Maybe.map toFloat
+        |> Maybe.map (.all >> List.length >> toFloat)
+        |> Maybe.map (\d -> toFloat model.eventsLoaded / d)
         |> Layout.loader
     ]
     |> Element.column [ Element.width Element.fill, Element.spacingXY 0 30 ]
@@ -135,6 +207,91 @@ aboutPage =
     , p [ Layout.bold <| text "That will hopefully encourage more interoperability!"]
     ]
     |> Element.column [ Element.width Element.fill, Element.spacingXY 0 30 ]
+
+{- Navigation -}
+navigationBar : List ( String, MenuItem ) -> Element Msg
+navigationBar items =
+    items
+    |> List.map
+        (\(item, m) ->
+            item
+            |> text
+            |> Layout.h3
+            |> Element.el [ Events.onClick <| ViewMenu m ]
+        )
+    |> List.intersperse (Layout.h3 (text ">"))
+    |> Element.row [ Element.spacing 20, Element.paddingXY 30 0]
+
+{- List of objects that didn't parse -}
+failedEvent : EventLoadState -> Element Msg
+failedEvent state =
+    case state of
+        LoadingFailed opened name err ->
+            if not opened then
+                Element.column 
+                    ( Layout.cardAttributes ++ [ Element.centerX ] )
+                    [ Element.row 
+                        [ Element.width Element.fill, Events.onClick (ToggleEventError name) ]
+                        [ el [Element.alignLeft] (text name)
+                        , Layout.iconButton
+                            { text = "Close error"
+                            , icon = Icons.keyboard_arrow_up
+                            , onPress = Just DoNothing
+                            }
+                            |> el [Element.alignRight]
+                        ]
+                    , Element.column []
+                        [
+                        ]
+                    ]
+            else
+                Element.column 
+                    ( Layout.cardAttributes ++ [ Element.centerX ] )
+                    [ Element.row 
+                        [ Element.width Element.fill, Events.onClick (ToggleEventError name) ]
+                        [ el [Element.alignLeft] (text name)
+                        , Layout.iconButton
+                            { text = "Open error"
+                            , icon = Icons.keyboard_arrow_down
+                            , onPress = Just DoNothing
+                            }
+                            |> el [Element.alignRight]
+                        ]
+                    , Element.column [ Element.padding 10 ]
+                        [ ( case err of
+                            Http.BadBody body ->
+                                body
+                        
+                            Http.NetworkError ->
+                                "Couldn't download the file. Did you turn off WiFi or enter a cave?"
+                            
+                            Http.Timeout ->
+                                "The server took too long to respond."
+
+                            Http.BadStatus 404 ->
+                                "ERROR: 404 NOT FOUND. (Maybe the file doesn't exist?)"
+
+                            Http.BadStatus 403 ->
+                                "ERROR: 403 FORBIDDEN. Maybe you downloaded the events too quickly."
+
+                            Http.BadStatus 500 ->
+                                "ERROR: 500 INTERNAL ERROR. It seems like the server is having some issues. :/"
+
+                            Http.BadStatus statusCode ->
+                                "Received status code " ++ (String.fromInt statusCode) ++ " from the server."
+
+                            Http.BadUrl url ->
+                                "The URL `" ++ url ++ "` is not valid."
+                        )
+                            |> text
+                            |> el [ Font.family [Font.monospace], color Layout.noordstarRed ]
+                            |> List.singleton
+                            |> p
+                        ]
+                    ]
+        
+        _ ->
+            Element.none
 
 {- FUNCTIONS THAT RENDER TYPES -}
 

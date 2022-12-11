@@ -15,7 +15,7 @@ import Widget.Layout
 getDirectory : Cmd Msg
 getDirectory =
     Http.get
-        { url = "/content/dir.json"
+        { url = "/events/dir.json"
         , expect = Http.expectJson DirectoryReceived directoryDecoder
         }
 
@@ -32,7 +32,7 @@ getEventAfterTimeout timeout eventType =
             Http.task
                 { method = "GET"
                 , headers = []
-                , url = "/content/" ++ eventType ++ ".json"
+                , url = "/events/" ++ eventType ++ ".json"
                 , body = Http.emptyBody
                 , resolver = Http.stringResolver jsonResolver
                 , timeout = Nothing
@@ -72,7 +72,7 @@ jsonResolver resp =
             Err (Http.BadStatus metadata.statusCode)
 
         Http.GoodStatus_ _ body ->
-            case D.decodeString eventDecoder body of
+            case D.decodeString eventDecoder (Debug.log "Body : " body) of
                 Ok value ->
                     Ok value
 
