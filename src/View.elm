@@ -4,6 +4,7 @@ import Color
 import Dict
 import Element exposing (Element, el, text)
 import Element.Background as Background
+import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
@@ -112,7 +113,7 @@ mainContent model =
         LookingAtEvent s e ->
             let
                 search : String
-                search = " \"" ++ (S.ellipsis 15 <| S.softEllipsis 10 s) ++ "\""
+                search = " \"" ++ (S.ellipsis 20 <| S.softEllipsis 15 s) ++ "\""
             in
             [ navigationBar 
                 [ ( ( "Search" ++ 
@@ -129,10 +130,10 @@ mainContent model =
                 ]
             , showEvent e
             ]
-            |> Element.column []
+            |> Element.column [ Element.centerX ]
         
         BrowseEventSetList ->
-            Element.none
+            browsePage model
         
         BrowseEventSet set ->
             [ navigationBar
@@ -141,7 +142,7 @@ mainContent model =
                 ]
             , showEventSet model set
             ]
-            |> Element.column []
+            |> Element.column [ Element.centerX ]
         
         BrowseEvent set evt ->
             [ navigationBar
@@ -158,7 +159,7 @@ mainContent model =
     )
     |> Element.el 
         [ Element.padding 30
-        , Element.width ( Element.fill |> Element.maximum 1000 )
+        , Element.width ( Element.fill |> Element.maximum 1250 )
         , Element.centerX
         ]
 
@@ -237,6 +238,17 @@ searchPage model query =
         |> Element.column [ Element.width Element.fill ]
     ]
     |> Element.column [ Element.width Element.fill, Element.spacing 50 ]
+
+browsePage : Model -> Element Msg
+browsePage model =
+    case model.directory of
+        Nothing ->
+            Element.none
+    
+        Just dir ->
+            dir.sets
+            |> List.map eventSetPreview
+            |> Element.wrappedRow [ Element.spacing 10 ]
 
 aboutPage : Element Msg
 aboutPage =
@@ -414,13 +426,39 @@ showEvent event =
             ] 
         )
 
+eventSetPreview : EventSet -> Element Msg
+eventSetPreview set =
+    [ Element.el [ Element.centerX ] <| Layout.h1 <| text set.name
+    , Element.image 
+        [ Element.centerX
+        , Element.width (Element.px 150)
+        , Element.height (Element.px 150)
+        , Border.rounded 75
+        , Element.clip
+        ]
+        { src = "/images/" ++ set.image
+        , description = set.name ++ " image"
+        }
+    , text set.description
+        |> List.singleton
+        |> p
+        |> Element.el [ Element.centerX, Element.centerY ]
+    ]
+    |> Element.column 
+        ( Layout.cardAttributes ++ 
+            [ BrowseEventSet set
+                |> ViewMenu
+                |> Events.onClick
+            , Element.height (Element.px 350)
+            ] 
+        )
 
 showEventSet : Model -> EventSet -> Element Msg
 showEventSet model set =
     [ [ Layout.h1 <| text set.name
       , p [ text set.description ]
       ]
-      |> Element.column []
+      |> Element.column [ Element.spacing 30 ]
     , set.parts
         |> List.map
             (\part ->
@@ -429,7 +467,7 @@ showEventSet model set =
                     |> List.map text
                     |> List.map List.singleton
                     |> List.map p
-                    |> Element.column []
+                    |> Element.column [ Element.spacing 30 ]
                 , part.events
                     |> List.map (\e -> Dict.get e model.events)
                     |> List.filterMap identity
@@ -444,13 +482,13 @@ showEventSet model set =
                             ) 
                             e
                         )
-                    |> Element.column []
+                    |> Element.column [ Element.width Element.fill, Element.spacing 30 ]
                 ]
-                |> Element.column []
+                |> Element.column [ Element.spacing 30, Element.width Element.fill ]
             )
-        |> Element.column []
+        |> Element.column [ Element.spacing 80, Element.width Element.fill ]
     ]
-    |> Element.column []
+    |> Element.column (Layout.cardAttributes ++ [ Element.spacing 80 ])
 
 objectTable : Object -> Element Msg
 objectTable o =
