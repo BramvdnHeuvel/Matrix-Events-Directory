@@ -1,4 +1,5 @@
 module Loader exposing (..)
+
 {-| The Loader module loads all JSON files from the `content/` folder.
 -}
 
@@ -10,7 +11,7 @@ import Msg exposing (..)
 import Process
 import Task
 import Widget.Layout
-import Msg exposing (EventLoadState(..))
+
 
 {-| Get the contents of `dir.json` as a directory for all events.
 -}
@@ -21,51 +22,58 @@ getDirectory =
         , expect = Http.expectJson DirectoryReceived directoryDecoder
         }
 
+
 {-| Get an event. To prevent a user from spamming the API with a boatload of JSON files,
 load each event at a slightly later moment in time.
 -}
 getEventAfterTimeout : Int -> String -> Cmd Msg
 getEventAfterTimeout timeout eventType =
     timeout
-    |> toFloat
-    |> Process.sleep
-    |> Task.andThen
-        (\_ ->
-            Http.task
-                { method = "GET"
-                , headers = []
-                , url = "/events/" ++ eventType ++ ".json"
-                , body = Http.emptyBody
-                , resolver = Http.stringResolver jsonResolver
-                , timeout = Nothing
-                })
-    |> Task.attempt (EventReceived eventType)
+        |> toFloat
+        |> Process.sleep
+        |> Task.andThen
+            (\_ ->
+                Http.task
+                    { method = "GET"
+                    , headers = []
+                    , url = "/events/" ++ eventType ++ ".json"
+                    , body = Http.emptyBody
+                    , resolver = Http.stringResolver jsonResolver
+                    , timeout = Nothing
+                    }
+            )
+        |> Task.attempt (EventReceived eventType)
+
 
 maybeGetEvent : Model -> String -> Maybe (Cmd Msg)
 maybeGetEvent model name =
     case Dict.get name model.events of
         Just Loading ->
             Nothing
+
         Just (Loaded _) ->
             Nothing
+
         Just (LoadingFailed _ _ _) ->
             Just <| getEventAfterTimeout 0 name
+
         Nothing ->
             Just <| getEventAfterTimeout 0 name
+
 
 {-| Get the size of the viewport.
 -}
 getViewportSize : Cmd Msg
 getViewportSize =
     Dom.getViewport
-    |> Task.map
-        (\window ->
-            { height = round window.viewport.height
-            , width = round window.viewport.width
-            }
-        )
-    |> Task.map Widget.Layout.getDeviceClass
-    |> Task.perform WindowSize
+        |> Task.map
+            (\window ->
+                { height = round window.viewport.height
+                , width = round window.viewport.width
+                }
+            )
+        |> Task.map Widget.Layout.getDeviceClass
+        |> Task.perform WindowSize
 
 
 {-| Decode an event from a HTTP response string.

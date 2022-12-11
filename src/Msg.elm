@@ -1,14 +1,18 @@
 module Msg exposing (..)
 
-import Element
 import Dict exposing (Dict)
-import Json.Decode as D
-import Http
-import Html exposing (s)
+import Element
 import Element.Font exposing (external)
+import Html exposing (s)
 import Html.Attributes exposing (required)
+import Http
+import Json.Decode as D
+
+
 
 -- MODEL
+
+
 type alias Model =
     { device : Element.DeviceClass
     , directory : Maybe Directory
@@ -18,10 +22,12 @@ type alias Model =
     , showMenuBar : Bool
     }
 
+
 type alias Directory =
     { all : List String
     , sets : List EventSet
     }
+
 
 type alias EventSet =
     { name : String
@@ -30,16 +36,19 @@ type alias EventSet =
     , parts : List EventSetPart
     }
 
+
 type alias EventSetPart =
     { name : String
     , description : List String
     , events : List String
     }
 
+
 type EventLoadState
     = Loading
     | LoadingFailed Bool String Http.Error
     | Loaded Event
+
 
 type alias Event =
     { name : String
@@ -49,12 +58,16 @@ type alias Event =
     , otherObjects : Dict String Object
     }
 
+
 type EventType
     = Message
     | State String
     | Ephemeral
 
-type alias Object = List Field
+
+type alias Object =
+    List Field
+
 
 type alias Field =
     { name : String
@@ -63,6 +76,7 @@ type alias Field =
     , objectType : ObjectType
     }
 
+
 type ObjectType
     = Text
     | Number
@@ -70,6 +84,7 @@ type ObjectType
     | ListOf ObjectType
     | DictOf ObjectType
     | External String
+
 
 type MenuItem
     = Home
@@ -80,7 +95,10 @@ type MenuItem
     | BrowseEvent EventSet Event
     | About
 
+
+
 -- MSG
+
 
 type Msg
     = ChooseMenuOption Int
@@ -94,39 +112,44 @@ type Msg
     | WaitThenRequestEvent String Int
     | WindowSize Element.DeviceClass
 
+
+
 -- DECODERS
+
 
 directoryDecoder : D.Decoder Directory
 directoryDecoder =
     D.map2
         (\a b -> { all = a, sets = b })
-        ( D.string |> D.list |> D.field "all"  )
-        ( eventSetDecoder |> D.list |> D.field "sets" )
+        (D.string |> D.list |> D.field "all")
+        (eventSetDecoder |> D.list |> D.field "sets")
+
 
 eventDecoder : D.Decoder Event
 eventDecoder =
     D.map5
         (\a b c d e ->
-            { name = a, description = b, eventType = c, content = d, otherObjects = e}
+            { name = a, description = b, eventType = c, content = d, otherObjects = e }
         )
         (D.field "name" D.string)
         (D.field "description" D.string)
-        ( D.string
+        (D.string
             |> D.field "state"
             |> D.maybe
             |> D.andThen (\x -> D.field "eventType" (eventTypeDecoder x))
         )
         (D.field "content" objectDecoder)
-        ( objectDecoder
+        (objectDecoder
             |> D.dict
             |> D.field "objects"
         )
-    |> D.andThen checkRequiredDependencies
+        |> D.andThen checkRequiredDependencies
+
 
 eventSetDecoder : D.Decoder EventSet
 eventSetDecoder =
     D.map4
-        (\a b c d -> { name = a, description = b, image = c, parts = d})
+        (\a b c d -> { name = a, description = b, image = c, parts = d })
         (D.field "name" D.string)
         (D.field "description" D.string)
         (D.field "image" D.string)
@@ -137,94 +160,113 @@ eventSetPartDecoder : D.Decoder EventSetPart
 eventSetPartDecoder =
     D.map3
         (\a b c -> { name = a, description = b, events = c })
-        ( D.field "name" D.string)
-        ( D.string |> D.list |> D.field "description" )
-        ( D.string |> D.list |> D.field "events" )
-
+        (D.field "name" D.string)
+        (D.string |> D.list |> D.field "description")
+        (D.string |> D.list |> D.field "events")
 
 
 eventTypeDecoder : Maybe String -> D.Decoder EventType
 eventTypeDecoder state =
     D.string
-    |> D.andThen
-        (\s ->
-            case s of
-                "message" ->
-                    D.succeed Message
-                "state" ->
-                    case state of
-                        Just st ->
-                            D.succeed (State st)
-                        Nothing ->
-                            D.fail "Missing state explanation."
-                "ephemeral" ->
-                    D.succeed Ephemeral
-                _ ->
-                    D.fail "Unknown event type"
-        )
+        |> D.andThen
+            (\s ->
+                case s of
+                    "message" ->
+                        D.succeed Message
+
+                    "state" ->
+                        case state of
+                            Just st ->
+                                D.succeed (State st)
+
+                            Nothing ->
+                                D.fail "Missing state explanation."
+
+                    "ephemeral" ->
+                        D.succeed Ephemeral
+
+                    _ ->
+                        D.fail "Unknown event type"
+            )
+
 
 fieldDecoder : D.Decoder Field
 fieldDecoder =
     D.map4
-        (\a b c d -> { name = a, description = b, required = c, objectType = d})
+        (\a b c d -> { name = a, description = b, required = c, objectType = d })
         (D.field "name" D.string)
         (D.field "description" D.string)
         (D.field "required" D.bool)
-        (objectTypeDecoder)
+        objectTypeDecoder
+
 
 objectDecoder : D.Decoder Object
 objectDecoder =
     D.list fieldDecoder
 
+
 objectTypeDecoder : D.Decoder ObjectType
 objectTypeDecoder =
     D.string
-    |> D.field "key"
-    |> D.maybe
-    |> D.andThen 
-        (\k -> 
-            D.string
-            |> D.field "type"
-            |> D.andThen (\t -> identifyObjectType t k)
-        )
+        |> D.field "key"
+        |> D.maybe
+        |> D.andThen
+            (\k ->
+                D.string
+                    |> D.field "type"
+                    |> D.andThen (\t -> identifyObjectType t k)
+            )
+
 
 
 -- HELPER FUNCTION
+
+
 identifyObjectType : String -> Maybe String -> D.Decoder ObjectType
 identifyObjectType t key =
-    if (String.startsWith "[" t && String.endsWith "]" t) then
+    if String.startsWith "[" t && String.endsWith "]" t then
         t
-        |> String.slice 1 -1
-        |> (\x -> identifyObjectType x key)
-        |> D.map ListOf
-    else if (String.startsWith "{" t && String.endsWith "}" t) then
+            |> String.slice 1 -1
+            |> (\x -> identifyObjectType x key)
+            |> D.map ListOf
+
+    else if String.startsWith "{" t && String.endsWith "}" t then
         t
-        |> String.slice 1 -1
-        |> (\x -> identifyObjectType x key)
-        |> D.map DictOf
+            |> String.slice 1 -1
+            |> (\x -> identifyObjectType x key)
+            |> D.map DictOf
+
     else
         case t of
             "int" ->
                 D.succeed Number
+
             "string" ->
                 D.succeed Text
+
             "enum" ->
                 D.string
-                |> D.list
-                |> D.field "key"
-                |> D.map Enum
+                    |> D.list
+                    |> D.field "key"
+                    |> D.map Enum
+
             _ ->
                 key
-                |> Maybe.map External
-                |> (\value ->
-                    case value of
-                        Just v ->
-                            D.succeed v
-                        Nothing ->
-                            D.fail <| "Missing key `key` for unknown object type `" ++ t ++ "`"
-                    )
+                    |> Maybe.map External
+                    |> (\value ->
+                            case value of
+                                Just v ->
+                                    D.succeed v
+
+                                Nothing ->
+                                    D.fail <| "Missing key `key` for unknown object type `" ++ t ++ "`"
+                       )
+
+
 
 -- CHECK REQUIRED DEPENDENCIES
+
+
 checkRequiredDependencies : Event -> D.Decoder Event
 checkRequiredDependencies event =
     let
@@ -233,10 +275,13 @@ checkRequiredDependencies event =
             case ot of
                 External o ->
                     Just o
+
                 ListOf o ->
                     external o
+
                 DictOf o ->
                     external o
+
                 _ ->
                     Nothing
 
@@ -246,31 +291,34 @@ checkRequiredDependencies event =
                 -- Irrelevant, shouldn't happen
                 Nothing ->
                     Dict.keys event.otherObjects
-                
+
                 Just o ->
                     o
-                    |> List.filter (\field -> field.required)
-                    |> List.filterMap (\field -> external field.objectType)
-        
+                        |> List.filter (\field -> field.required)
+                        |> List.filterMap (\field -> external field.objectType)
+
         dependencyFinder : String -> List String -> String -> Maybe (List String)
         dependencyFinder start traceback cursor =
             if List.member start (requiredDependencies cursor) then
-                Just (traceback ++ [cursor, start])
-            else if (requiredDependencies cursor) == [] then
+                Just (traceback ++ [ cursor, start ])
+
+            else if requiredDependencies cursor == [] then
                 Nothing
+
             else
                 requiredDependencies cursor
-                |> List.map ( dependencyFinder start (traceback ++ [cursor]))
-                |> List.filterMap identity
-                |> (\x ->
-                        case x of
-                            [] ->
-                                Nothing
-                            head :: _ ->
-                                Just head
-                    )
-    in 
-        event.otherObjects
+                    |> List.map (dependencyFinder start (traceback ++ [ cursor ]))
+                    |> List.filterMap identity
+                    |> (\x ->
+                            case x of
+                                [] ->
+                                    Nothing
+
+                                head :: _ ->
+                                    Just head
+                       )
+    in
+    event.otherObjects
         |> Dict.keys
         |> List.map (\k -> dependencyFinder k [] k)
         |> List.filterMap identity
@@ -278,25 +326,32 @@ checkRequiredDependencies event =
                 case x of
                     [] ->
                         D.succeed event
+
                     head :: _ ->
-                        ( "Found a circular dependency of required objects: "
-                        ++ String.join " --> " head
+                        ("Found a circular dependency of required objects: "
+                            ++ String.join " --> " head
                         )
-                        |> D.fail
-            )
+                            |> D.fail
+           )
+
 
 fromObjectType : ObjectType -> String
 fromObjectType ot =
     case ot of
         Number ->
             "int"
+
         Text ->
             "string"
+
         Enum v ->
-            "One of [\"" ++ (String.join "\", \"" v) ++ "\"]"
+            "One of [\"" ++ String.join "\", \"" v ++ "\"]"
+
         ListOf o ->
-            "[" ++ (fromObjectType o) ++ "]"
+            "[" ++ fromObjectType o ++ "]"
+
         DictOf o ->
-            "{ string: " ++ (fromObjectType o) ++ "}"
+            "{ string: " ++ fromObjectType o ++ "}"
+
         External o ->
             o

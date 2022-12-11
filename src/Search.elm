@@ -1,19 +1,21 @@
 module Search exposing (..)
 
-import Msg exposing (..)
 import Dict
+import Msg exposing (..)
 import String.Extra as S
+
 
 results : Model -> String -> List EventLoadState
 results model query =
     let
         score : String -> Int
-        score = breakOpen >> likeness (breakOpen query)
+        score =
+            breakOpen >> likeness (breakOpen query)
     in
-        model.events
+    model.events
         |> Dict.toList
         |> List.sortBy
-            (\(name, eventLoadState) ->
+            (\( name, eventLoadState ) ->
                 case eventLoadState of
                     Loaded e ->
                         [ score e.name
@@ -36,7 +38,8 @@ results model query =
                             |> List.maximum
                             |> Maybe.withDefault 0
                         ]
-                        |> List.map (\x -> -1 * x)
+                            |> List.map (\x -> -1 * x)
+
                     _ ->
                         [ score name
                         , 0
@@ -44,7 +47,7 @@ results model query =
                         , 0
                         , 0
                         ]
-                        |> List.map (\x -> -1 * x)
+                            |> List.map (\x -> -1 * x)
             )
         |> List.map Tuple.second
 
@@ -52,32 +55,33 @@ results model query =
 likeness : List String -> List String -> Int
 likeness query story =
     query
-    |> List.map (\q -> List.member q story)
-    |> List.filter identity
-    |> List.length
+        |> List.map (\q -> List.member q story)
+        |> List.filter identity
+        |> List.length
+
 
 {-| Break words up so it becomes easier to search for them.
 -}
 breakOpen : String -> List String
 breakOpen =
     S.humanize
-    >> String.toLower
-    >> S.removeAccents
-    >> String.replace "." " "
-    >> String.replace "." " "
-    >> String.replace "," " "
-    >> String.replace "-" " "
-    >> String.replace ":" " "
-    >> String.replace ";" " "
-    >> String.replace "!" " "
-    >> String.replace "?" " "
-    >> String.replace "@" " "
-    >> String.replace "-" " "
-    >> String.replace "_" " "
-    >> String.replace "+" " "
-    >> String.replace "&" " "
-    >> String.replace "^" " "
-    >> String.replace "#" " "
-    >> String.replace "~" " "
-    >> String.replace "`" " "
-    >> String.split " "
+        >> String.toLower
+        >> S.removeAccents
+        >> String.replace "." " "
+        >> String.replace "." " "
+        >> String.replace "," " "
+        >> String.replace "-" " "
+        >> String.replace ":" " "
+        >> String.replace ";" " "
+        >> String.replace "!" " "
+        >> String.replace "?" " "
+        >> String.replace "@" " "
+        >> String.replace "-" " "
+        >> String.replace "_" " "
+        >> String.replace "+" " "
+        >> String.replace "&" " "
+        >> String.replace "^" " "
+        >> String.replace "#" " "
+        >> String.replace "~" " "
+        >> String.replace "`" " "
+        >> String.split " "
