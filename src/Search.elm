@@ -2,12 +2,13 @@ module Search exposing (..)
 
 import Msg exposing (..)
 import Dict
+import String.Extra as S
 
 results : Model -> String -> List Event
 results model query =
     let
         score : String -> Int
-        score = likeness query
+        score = breakOpen >> likeness (breakOpen query)
     in
         model.events
         |> Dict.values
@@ -44,33 +45,35 @@ results model query =
                 |> List.map (\x -> -1 * x)
             )
 
-likeness : String -> String -> Int
-likeness sa sb =
-    let
-        {- Punishment for every wrong character -}
-        p : Int
-        p = -1
+likeness : List String -> List String -> Int
+likeness query story =
+    query
+    |> List.map (\q -> List.member q story)
+    |> List.filter identity
+    |> List.length
 
-        {- Reward for every matching character -}
-        reward : Int
-        reward = 100
-    in
-    case (String.toList sa, String.toList sb) of
-        (_, []) ->
-            p * (String.length sa)
-        
-        ([], _) ->
-            p * (String.length sb)
-        
-        (a :: ta, b :: tb) ->
-            if a == b then
-                ( likeness 
-                    (String.fromList ta) 
-                    (String.fromList tb)
-                ) + reward
-            else
-                ( max
-                    (likeness sa (String.fromList tb))
-                    (likeness sb (String.fromList ta))
-                ) + p
-
+{-| Break words up so it becomes easier to search for them.
+-}
+breakOpen : String -> List String
+breakOpen =
+    S.humanize
+    >> String.toLower
+    >> S.removeAccents
+    >> String.replace "." " "
+    >> String.replace "." " "
+    >> String.replace "," " "
+    >> String.replace "-" " "
+    >> String.replace ":" " "
+    >> String.replace ";" " "
+    >> String.replace "!" " "
+    >> String.replace "?" " "
+    >> String.replace "@" " "
+    >> String.replace "-" " "
+    >> String.replace "_" " "
+    >> String.replace "+" " "
+    >> String.replace "&" " "
+    >> String.replace "^" " "
+    >> String.replace "#" " "
+    >> String.replace "~" " "
+    >> String.replace "`" " "
+    >> String.split " "
