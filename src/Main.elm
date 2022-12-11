@@ -85,6 +85,7 @@ update msg model =
                             Loaded e
                         Err e ->
                             LoadingFailed False name e
+                            |> Debug.log ("Loading event " ++ name ++ " failed: ") 
             in
                 ( { model
                     | events = Dict.insert name dictValue model.events 
@@ -108,18 +109,43 @@ update msg model =
                     |> Maybe.map .all
                     |> Maybe.withDefault []
                     |> List.member query
+                
+                couldLoad : Bool
+                couldLoad =
+                    case Dict.get query model.events of
+                        Nothing ->
+                            False
+                        Just Loading ->
+                            True
+                        Just (Loaded _) ->
+                            False
+                        Just (LoadingFailed _ _ _) ->
+                            True
+                
+                offset : Int
+                offset =
+                    case Dict.get query model.events of
+                        Just Loading ->
+                            0
+                        _ ->
+                            -1
             in
-            ( { model 
-              | menu = Search query
-              , showMenuBar = False
-              }
-            , if isKnownEvent then
-                Cmd.none -- TODO: If it is a known event that has not been
-                         --       downloaded yet, make sure to download it
-                         --       right away.
+            if isKnownEvent && couldLoad then
+                ( { model 
+                | menu = Search query
+                , showMenuBar = False
+                , events = Dict.insert query Loading model.events
+                , eventsLoaded = model.eventsLoaded + offset
+                }
+                , Loader.getEventAfterTimeout 0 query
+                )
             else
-                Cmd.none
-            )
+                ( { model 
+                | menu = Search query
+                , showMenuBar = False
+                }
+                , Cmd.none
+                )
         
         ToggleEventError name ->
             case Dict.get name model.events of
@@ -140,7 +166,24 @@ update msg model =
             ( { model | showMenuBar = False, menu = menu }, Cmd.none )
         
         WaitThenRequestEvent e t ->
-            ( model, Loader.getEventAfterTimeout t e )
+            case Dict.get e model.events of
+                Nothing ->
+                    ( { model
+                      | events = Dict.insert e Loading model.events
+                      }
+                    , Loader.getEventAfterTimeout t e 
+                    )
+                Just Loading ->
+                    ( model, Loader.getEventAfterTimeout t e )
+                Just (Loaded _) ->
+                    ( model, Cmd.none )
+                Just (LoadingFailed _ _ _) ->
+                    ( { model
+                      | eventsLoaded = model.eventsLoaded - 1
+                      , events = Dict.insert e Loading model.events
+                      }
+                    , Loader.getEventAfterTimeout t e
+                    )
         
         WindowSize device ->
             ( { model | device = device }, Cmd.none )

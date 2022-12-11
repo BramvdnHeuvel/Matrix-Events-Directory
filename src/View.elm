@@ -135,10 +135,23 @@ mainContent model =
             Element.none
         
         BrowseEventSet set ->
-            Element.none
+            [ navigationBar
+                [ ( "Browse", BrowseEventSetList )
+                , ( set.name, BrowseEventSet set )
+                ]
+            , showEventSet model set
+            ]
+            |> Element.column []
         
-        BrowseEvent set event ->
-            Element.none
+        BrowseEvent set evt ->
+            [ navigationBar
+                [ ( "Browse", BrowseEventSetList )
+                , ( set.name, BrowseEventSet set )
+                , ( evt.name, BrowseEvent set evt )
+                ]
+            , showEvent evt
+            ]
+            |> Element.column []
         
         About ->
             aboutPage
@@ -210,7 +223,17 @@ searchPage model query =
         , label = Input.labelHidden "Event lookup search bar"
         }
     , Search.results model query
-        |> List.map (\e -> eventPreview (ViewMenu <| LookingAtEvent query e) e)
+        |> List.map 
+            (\e -> 
+                eventPreview 
+                    ( case e of
+                        Loaded event ->
+                            ViewMenu <| LookingAtEvent query event
+                        _ ->
+                            DoNothing
+                    )
+                    e
+            )
         |> Element.column [ Element.width Element.fill ]
     ]
     |> Element.column [ Element.width Element.fill, Element.spacing 50 ]
@@ -332,11 +355,32 @@ failedEvent state =
 
 {- FUNCTIONS THAT RENDER TYPES -}
 
-eventPreview : Msg -> Event -> Element Msg
-eventPreview onClick e =
-    [ Layout.h2 <| text e.name
-    , p [ text e.description ]
-    ]
+eventPreview : Msg -> EventLoadState -> Element Msg
+eventPreview onClick event =
+    ( case event of
+        Loaded e ->
+            [ Layout.h2 <| text e.name
+            , p [ text e.description ]
+            ]
+        
+        Loading ->
+            [ Layout.h2 <| text "Event is loading..."
+            , Layout.loader Nothing
+            ]
+        
+        LoadingFailed _ name err ->
+            [ [ Layout.h2 <| text name
+              , Widget.iconButton
+                    (Widget.Material.containedButton Layout.primaryPalette)
+                    { text = "Retry"
+                    , icon = Layout.getIcon Icons.refresh
+                    , onPress = Just (WaitThenRequestEvent name 0)
+                    }
+              ]
+              |> Element.row [ Element.spaceEvenly, Element.width Element.fill ]
+            , p [ text "Loading failed. Please try again." ]
+            ]
+    )
     |> Element.column 
         ( Layout.cardAttributes ++
             [ Element.width Element.fill
@@ -347,30 +391,66 @@ eventPreview onClick e =
 
 showEvent : Event -> Element Msg
 showEvent event =
-    (
-        [ [ Layout.h1 <| text event.name
-          , p [ text event.description ]
-          , objectTable event.content
-          ]
-          |> Element.column [ Element.spacing 30 ]
-        , event.otherObjects
-            |> Dict.toList
-            |> List.map
-                (\(name, o) ->
-                    [ Layout.h2 <| text name
-                    , objectTable o
-                    ]
-                )
-            |> List.map (Element.column [])
-            |> Element.column [ Element.spacing 30 ]
+    [ [ Layout.h1 <| text event.name
+        , p [ text event.description ]
+        , objectTable event.content
         ]
-    )
+        |> Element.column [ Element.spacing 30 ]
+    , event.otherObjects
+        |> Dict.toList
+        |> List.map
+            (\(name, o) ->
+                [ Layout.h2 <| text name
+                , objectTable o
+                ]
+            )
+        |> List.map (Element.column [])
+        |> Element.column [ Element.spacing 30 ]
+    ]
     |> Element.column 
         ( Layout.cardAttributes ++ 
             [ Element.spacing 100 
             , Element.paddingEach { top = 50, left = 50, right = 50, bottom = 100 }
             ] 
         )
+
+
+showEventSet : Model -> EventSet -> Element Msg
+showEventSet model set =
+    [ [ Layout.h1 <| text set.name
+      , p [ text set.description ]
+      ]
+      |> Element.column []
+    , set.parts
+        |> List.map
+            (\part ->
+                [ Layout.h2 <| text part.name
+                , part.description
+                    |> List.map text
+                    |> List.map List.singleton
+                    |> List.map p
+                    |> Element.column []
+                , part.events
+                    |> List.map (\e -> Dict.get e model.events)
+                    |> List.filterMap identity
+                    |> List.map 
+                        (\e -> 
+                            eventPreview 
+                            (case e of
+                                Loaded event ->
+                                    ViewMenu <| BrowseEvent set event
+                                _ ->
+                                    DoNothing
+                            ) 
+                            e
+                        )
+                    |> Element.column []
+                ]
+                |> Element.column []
+            )
+        |> Element.column []
+    ]
+    |> Element.column []
 
 objectTable : Object -> Element Msg
 objectTable o =

@@ -4,46 +4,50 @@ import Msg exposing (..)
 import Dict
 import String.Extra as S
 
-results : Model -> String -> List Event
+results : Model -> String -> List EventLoadState
 results model query =
     let
         score : String -> Int
         score = breakOpen >> likeness (breakOpen query)
     in
         model.events
-        |> Dict.values
-        |> List.filterMap
-            (\eventLoadState ->
+        |> Dict.toList
+        |> List.sortBy
+            (\(name, eventLoadState) ->
                 case eventLoadState of
                     Loaded e ->
-                        Just e
+                        [ score e.name
+                        , score e.description
+                        , e.otherObjects
+                            |> Dict.keys
+                            |> List.map score
+                            |> List.maximum
+                            |> Maybe.withDefault 0
+                        , e.otherObjects
+                            |> Dict.values
+                            |> List.map (List.map (.description >> score))
+                            |> List.filterMap List.maximum
+                            |> List.maximum
+                            |> Maybe.withDefault 0
+                        , e.otherObjects
+                            |> Dict.values
+                            |> List.map (List.map (.name >> score))
+                            |> List.filterMap List.maximum
+                            |> List.maximum
+                            |> Maybe.withDefault 0
+                        ]
+                        |> List.map (\x -> -1 * x)
                     _ ->
-                        Nothing
+                        [ score name
+                        , 0
+                        , 0
+                        , 0
+                        , 0
+                        ]
+                        |> List.map (\x -> -1 * x)
             )
-        |> List.sortBy
-            (\e ->
-                [ score e.name
-                , score e.description
-                , e.otherObjects
-                    |> Dict.keys
-                    |> List.map score
-                    |> List.maximum
-                    |> Maybe.withDefault 0
-                , e.otherObjects
-                    |> Dict.values
-                    |> List.map (List.map (.description >> score))
-                    |> List.filterMap List.maximum
-                    |> List.maximum
-                    |> Maybe.withDefault 0
-                , e.otherObjects
-                    |> Dict.values
-                    |> List.map (List.map (.name >> score))
-                    |> List.filterMap List.maximum
-                    |> List.maximum
-                    |> Maybe.withDefault 0
-                ]
-                |> List.map (\x -> -1 * x)
-            )
+        |> List.map Tuple.second
+
 
 likeness : List String -> List String -> Int
 likeness query story =
