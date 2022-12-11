@@ -1,0 +1,20 @@
+{
+    "all": [
+        "m.call.answer",
+        "uk.half-shot.bridge",
+        "recursive.loop"
+    ],
+    "sets": [{
+        "name": "VoIP",
+        "description": "Interaction to help two users in a room set up a Voice over IP (VoIP) call to each other using the WebRTC 1.0 standard.",
+        "image": "voip.png",
+        "parts": [{
+            "name": "Set-up",
+            "description": [
+                "You might want to set up a call.",
+                "Using this event, you can do that - maybe."
+            ],
+            "events": ["m.call.answer"]
+        }]
+    }]
+}

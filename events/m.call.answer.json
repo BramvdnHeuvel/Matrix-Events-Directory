@@ -1,0 +1,43 @@
+{
+    "name": "m.call.answer",
+    "description": "This event is sent by the callee when they wish to answer the call.",
+    "eventType": "message",
+    "content": [
+        {
+            "name": "answer",
+            "type": "object",
+            "key": "Answer",
+            "required": true,
+            "description": "The session description object."
+        },
+        {
+            "name": "call_id",
+            "type": "string",
+            "required": true,
+            "description": "The ID of the call this event relates to."
+        },
+        {
+            "name": "version",
+            "type": "int",
+            "required": true,
+            "description": "The version of the VoIP specification this messages adheres to. This specification is version 0."
+        }
+    ],
+    "objects": {
+        "Answer": [
+            {
+                "name": "sdp",
+                "type": "string",
+                "required": true,
+                "description": "The SDP text of the session description."
+            },
+            {
+                "name": "type",
+                "type": "enum",
+                "key": ["answer"],
+                "required": true,
+                "description": "The type of session description."
+            }
+        ]
+    }
+}

@@ -1,0 +1,32 @@
+{
+    "name": "recursive.loop",
+    "description": "This is is recursive and should fail.",
+    "eventType": "message",
+    "content": [
+        {
+            "name": "foo",
+            "type": "object",
+            "key": "Foo",
+            "required": true,
+            "description": "The recursive thing."
+        }
+    ],
+    "objects": {
+        "Foo": [{
+            "name": "bar",
+            "type": "object",
+            "key": "Bar",
+            "required": true,
+            "description": "The sub thing."
+        }],
+        "Bar": [
+            {
+                "name": "foo",
+                "type": "object",
+                "key": "Foo",
+                "required": true,
+                "description": "The recursive thing."
+            }
+        ]
+    }
+}

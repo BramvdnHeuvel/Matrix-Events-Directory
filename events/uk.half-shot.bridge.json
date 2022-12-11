@@ -1,0 +1,121 @@
+{
+    "name": "uk.half-shot.bridge",
+    "description": "This event is sent to display information about a bridge that is present in the room.",
+    "eventType": "state",
+    "state": "The bridge's prefix, followed by the protocol id, followed by the network id, followed by the channel id.", 
+    "content": [
+        {
+            "name": "bridgebot",
+            "type": "string",
+            "required": true,
+            "description": "The MXID of the bridge bot. Note that the sender of this event is not always the bridge bot."
+        },
+        {
+            "name": "creator",
+            "type": "string",
+            "required": false,
+            "description": "The MXID of the user who provisioned the bridge. This value can be omitted if the creator is unknown."
+        },
+        {
+            "name": "protocol",
+            "type": "object",
+            "key": "Protocol",
+            "required": true,
+            "description": "The protocol that is being bridged."
+        },
+        {
+            "name": "network",
+            "type": "object",
+            "key": "Network",
+            "required": true,
+            "description": "The specific network the bridge is connected to."
+        },
+        {
+            "name": "channel",
+            "type": "object",
+            "key": "Channel",
+            "required": true,
+            "description": "The specific channel the bridge is connected to."
+        }
+    ],
+    "objects": {
+        "Channel": [
+            {
+                "name": "id",
+                "type": "string",
+                "required": true,
+                "description": "Id of the channel that is being bridged to."
+            },
+            {
+                "name": "displayname",
+                "type": "string",
+                "required": false,
+                "description": "Human readable identifier for the channel."
+            },
+            {
+                "name": "avatar",
+                "type": "string",
+                "required": false,
+                "description": "MXC URI that refers to an image of the channel."
+            },
+            {
+                "name": "external_url",
+                "type": "string",
+                "required": false,
+                "description": "Link to a connected channel so users may view the bridge on the other side."
+            }
+        ],
+        "Network": [
+            {
+                "name": "id",
+                "type": "string",
+                "required": true,
+                "description": "Id of the network that is being bridged to."
+            },
+            {
+                "name": "displayname",
+                "type": "string",
+                "required": false,
+                "description": "Human readable identifier for the network."
+            },
+            {
+                "name": "avatar",
+                "type": "string",
+                "required": false,
+                "description": "MXC URI that refers to an image of the network."
+            },
+            {
+                "name": "external_url",
+                "type": "string",
+                "required": false,
+                "description": "Link to a connected network as an identifier of the network."
+            }
+        ],
+        "Protocol": [
+            {
+                "name": "id",
+                "type": "string",
+                "required": true,
+                "description": "Id of the protocol that is being bridged to."
+            },
+            {
+                "name": "displayname",
+                "type": "string",
+                "required": false,
+                "description": "Human readable identifier for the protocol."
+            },
+            {
+                "name": "avatar",
+                "type": "string",
+                "required": false,
+                "description": "MXC URI that refers to an image of the protocol."
+            },
+            {
+                "name": "external_url",
+                "type": "string",
+                "required": false,
+                "description": "Link to the protocol, either providing information or referring to a relevant page for the bridge."
+            }
+        ]
+    }
+}
