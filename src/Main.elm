@@ -32,6 +32,7 @@ init _ =
       , directory = Nothing
       , events = Dict.empty
       , eventsLoaded = 0
+      , exampleText = ""
       , menu = Home
       , showMenuBar = False
       }
@@ -49,6 +50,11 @@ init _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        CheckExample _ ->
+            ( model, Cmd.none )
+
+        -- TODO: Write a checker that makes sure the
+        --       event is of the expected quality.
         ChooseMenuOption i ->
             case i of
                 0 ->
@@ -187,7 +193,7 @@ update msg model =
                 |> Debug.log "Current state of affairs: "
 
         ViewMenu menu ->
-            ( { model | showMenuBar = False, menu = menu }, Cmd.none )
+            ( { model | showMenuBar = False, menu = menu, exampleText = "" }, Cmd.none )
 
         WaitThenRequestEvent e t ->
             case Dict.get e model.events of
@@ -214,6 +220,9 @@ update msg model =
 
         WindowSize device ->
             ( { model | device = device }, Cmd.none )
+
+        WriteTestEvent content ->
+            ( { model | exampleText = content }, Cmd.none )
 
 
 

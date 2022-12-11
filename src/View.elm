@@ -143,7 +143,7 @@ mainContent model =
                   )
                 , ( e.name, LookingAtEvent s e )
                 ]
-            , showEvent e
+            , showEvent model e
             ]
                 |> Element.column [ Element.centerX ]
 
@@ -165,7 +165,7 @@ mainContent model =
                 , ( set.name, BrowseEventSet set )
                 , ( evt.name, BrowseEvent set evt )
                 ]
-            , showEvent evt
+            , showEvent model evt
             ]
                 |> Element.column []
 
@@ -450,8 +450,8 @@ eventPreview onClick event =
             )
 
 
-showEvent : Event -> Element Msg
-showEvent event =
+showEvent : Model -> Event -> Element Msg
+showEvent model event =
     [ [ Layout.h1 <| text event.name
       , p [ text event.description ]
       , objectTable event.content
@@ -467,6 +467,19 @@ showEvent event =
             )
         |> List.map (Element.column [])
         |> Element.column [ Element.spacing 30 ]
+    , [ Input.multiline
+            [ Font.family [ Font.monospace ] ]
+            { onChange = WriteTestEvent
+            , text = model.exampleText
+            , placeholder = text "Write a test object!" |> Input.placeholder [] |> Just
+            , label = Input.labelAbove [] (Layout.h2 <| text "Test object")
+            , spellcheck = False
+            }
+      , Widget.textButton
+            (Widget.Material.containedButton Layout.primaryPalette)
+            { text = "Check", onPress = Just (CheckExample event) }
+      ]
+        |> Element.column [ Element.width Element.fill ]
     ]
         |> Element.column
             (Layout.cardAttributes

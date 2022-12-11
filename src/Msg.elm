@@ -18,6 +18,7 @@ type alias Model =
     , directory : Maybe Directory
     , events : Dict String EventLoadState
     , eventsLoaded : Int
+    , exampleText : String
     , menu : MenuItem
     , showMenuBar : Bool
     }
@@ -101,7 +102,8 @@ type MenuItem
 
 
 type Msg
-    = ChooseMenuOption Int
+    = CheckExample Event
+    | ChooseMenuOption Int
     | DirectoryReceived (Result Http.Error Directory)
     | DoNothing
     | EventReceived String (Result Http.Error Event)
@@ -111,6 +113,7 @@ type Msg
     | ViewMenu MenuItem
     | WaitThenRequestEvent String Int
     | WindowSize Element.DeviceClass
+    | WriteTestEvent String
 
 
 
@@ -129,7 +132,12 @@ eventDecoder : D.Decoder Event
 eventDecoder =
     D.map5
         (\a b c d e ->
-            { name = a, description = b, eventType = c, content = d, otherObjects = e }
+            { name = a
+            , description = b
+            , eventType = c
+            , content = d
+            , otherObjects = e
+            }
         )
         (D.field "name" D.string)
         (D.field "description" D.string)
