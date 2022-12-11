@@ -1,6 +1,7 @@
 module View exposing (..)
 
 import Color
+import Dict
 import Element exposing (Element, el, text)
 import Element.Background as Background
 import Element.Events as Events
@@ -11,11 +12,12 @@ import Material.Icons as Icons
 import Msg exposing (..)
 import Layout
 import Search
+import String.Extra as S
 import Widget
+import Widget.Customize as Customize
 import Widget.Layout
 import Widget.Material
 import Widget.Material.Color
-import Dict
 
 {-| Create the bar at the top of the page.
 -}
@@ -25,6 +27,7 @@ topAppBar model =
         ( Widget.Material.menuBar Layout.primaryPalette )
         { title = text Layout.pageTitle
                     |> Layout.h1
+                    |> Element.el [ color Color.white]
         , deviceClass = model.device
         , openLeftSheet = Just ToggleMenuBar
         , openTopSheet = Nothing
@@ -99,7 +102,7 @@ leftSideBar model =
 -}
 mainContent : Model -> Element Msg
 mainContent model =
-    case model.menu of
+    ( case model.menu of
         Home ->
             homePage model
 
@@ -107,8 +110,24 @@ mainContent model =
             searchPage model s
 
         LookingAtEvent s e ->
-            [ navigationBar [ ( "Search", Search s ), ( e.name, LookingAtEvent s e ) ]
-            , Element.none
+            let
+                search : String
+                search = " \"" ++ (S.ellipsis 15 <| S.softEllipsis 10 s) ++ "\""
+            in
+            [ navigationBar 
+                [ ( ( "Search" ++ 
+                        ( case search of
+                            " \"\"" ->
+                                ""
+                            _ ->
+                                search
+                        )
+                    )
+                    , Search s
+                  )
+                , ( e.name, LookingAtEvent s e ) 
+                ]
+            , showEvent e
             ]
             |> Element.column []
         
@@ -123,6 +142,12 @@ mainContent model =
         
         About ->
             aboutPage
+    )
+    |> Element.el 
+        [ Element.padding 30
+        , Element.width ( Element.fill |> Element.maximum 1000 )
+        , Element.centerX
+        ]
 
 {- REFERENCE FUNCTIONS -}
 
@@ -175,7 +200,10 @@ homePage model =
 
 searchPage : Model -> String -> Element Msg
 searchPage model query =
-    [ Input.search [ Element.padding 30 ]
+    [ Input.search 
+        [ Element.padding 30
+        , Element.width Element.fill
+        ]
         { onChange = SearchEvent
         , text = query
         , placeholder = Just (Input.placeholder [] (text "Look for events here..."))
@@ -183,9 +211,9 @@ searchPage model query =
         }
     , Search.results model query
         |> List.map (\e -> eventPreview (ViewMenu <| LookingAtEvent query e) e)
-        |> Element.column []
+        |> Element.column [ Element.width Element.fill ]
     ]
-    |> Element.column []
+    |> Element.column [ Element.width Element.fill, Element.spacing 50 ]
 
 aboutPage : Element Msg
 aboutPage =
@@ -217,10 +245,19 @@ navigationBar items =
             item
             |> text
             |> Layout.h3
-            |> Element.el [ Events.onClick <| ViewMenu m ]
+            |> Element.el 
+                ( Layout.cardAttributes ++
+                    [ Events.onClick <| ViewMenu m 
+                    , Element.width Element.shrink
+                    ]
+                )
         )
     |> List.intersperse (Layout.h3 (text ">"))
-    |> Element.row [ Element.spacing 20, Element.paddingXY 30 0]
+    |> Element.row 
+        [ Element.spacing 20
+        , Element.paddingEach
+            { top = 0, left = 30, right = 30, bottom = 30 }
+        ]
 
 {- List of objects that didn't parse -}
 failedEvent : EventLoadState -> Element Msg
@@ -301,7 +338,87 @@ eventPreview onClick e =
     , p [ text e.description ]
     ]
     |> Element.column 
-        [ Element.width (Element.fill |> Element.maximum 300)
-        , Events.onClick onClick
-        ]
+        ( Layout.cardAttributes ++
+            [ Element.width Element.fill
+            , Events.onClick onClick
+            , Element.centerX
+            ]
+        )
 
+showEvent : Event -> Element Msg
+showEvent event =
+    (
+        [ [ Layout.h1 <| text event.name
+          , p [ text event.description ]
+          , objectTable event.content
+          ]
+          |> Element.column [ Element.spacing 30 ]
+        , event.otherObjects
+            |> Dict.toList
+            |> List.map
+                (\(name, o) ->
+                    [ Layout.h2 <| text name
+                    , objectTable o
+                    ]
+                )
+            |> List.map (Element.column [])
+            |> Element.column [ Element.spacing 30 ]
+        ]
+    )
+    |> Element.column 
+        ( Layout.cardAttributes ++ 
+            [ Element.spacing 100 
+            , Element.paddingEach { top = 50, left = 50, right = 50, bottom = 100 }
+            ] 
+        )
+
+objectTable : Object -> Element Msg
+objectTable o =
+    Widget.sortTableV2
+        (Widget.Material.sortTable Layout.primaryPalette
+            |> Customize.elementTable [ Element.spacing 20, Element.width Element.fill ]
+        )
+        { content = o
+        , columns =
+            [ Widget.unsortableColumnV2
+                { title = "Field"
+                , toString = .name
+                , width = Element.shrink
+                }
+            , Widget.unsortableColumnV2
+                { title = "Type"
+                , toString = (.objectType >> fromObjectType)
+                , width = Element.shrink
+                }
+            , Widget.customColumnV2
+                { title = "Required"
+                , value = 
+                    (\{required} ->
+                        Widget.iconButton
+                            (Widget.Material.iconButton Layout.primaryPalette)
+                            { text = "Required"
+                            , icon = 
+                                ( if required then
+                                    Icons.check
+                                else
+                                    Icons.cancel
+                                )
+                                |> Layout.getIcon
+                            , onPress = Just DoNothing
+                            }
+                        |> Element.el [ Element.centerX ]
+                    )
+                , width = Element.shrink
+                }
+            , Widget.unsortableColumnV2
+                { title = "Description"
+                , toString = .description
+                , width = Element.fill
+                }
+            ]
+        , sortBy = "name"
+        , asc = True
+        , onChange = (\_ -> DoNothing)
+        }
+        |> List.singleton
+        |> p

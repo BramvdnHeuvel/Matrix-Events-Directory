@@ -284,3 +284,19 @@ checkRequiredDependencies event =
                         )
                         |> D.fail
             )
+
+fromObjectType : ObjectType -> String
+fromObjectType ot =
+    case ot of
+        Number ->
+            "int"
+        Text ->
+            "string"
+        Enum v ->
+            "One of [\"" ++ (String.join "\", \"" v) ++ "\"]"
+        ListOf o ->
+            "[" ++ (fromObjectType o) ++ "]"
+        DictOf o ->
+            "{ string: " ++ (fromObjectType o) ++ "}"
+        External o ->
+            o

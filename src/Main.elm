@@ -12,7 +12,6 @@ import Msg exposing (..)
 import Random
 import View
 import Widget.Layout
-import List exposing (all)
 
 main = Browser.element
     { init = init
@@ -64,6 +63,7 @@ update msg model =
                         |> List.map (\m -> 
                             d.all
                             |> List.length
+                            |> (*) 500 -- On average, load one event every 500ms
                             |> Random.int 1
                             |> Random.generate m
                         )

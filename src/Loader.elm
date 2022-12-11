@@ -3,12 +3,14 @@ module Loader exposing (..)
 -}
 
 import Browser.Dom as Dom
+import Dict
 import Http
 import Json.Decode as D
-import Msg exposing (Event, Msg(..), directoryDecoder, eventDecoder)
+import Msg exposing (..)
 import Process
 import Task
 import Widget.Layout
+import Msg exposing (EventLoadState(..))
 
 {-| Get the contents of `dir.json` as a directory for all events.
 -}
@@ -38,6 +40,18 @@ getEventAfterTimeout timeout eventType =
                 , timeout = Nothing
                 })
     |> Task.attempt (EventReceived eventType)
+
+maybeGetEvent : Model -> String -> Maybe (Cmd Msg)
+maybeGetEvent model name =
+    case Dict.get name model.events of
+        Just Loading ->
+            Nothing
+        Just (Loaded _) ->
+            Nothing
+        Just (LoadingFailed _ _ _) ->
+            Just <| getEventAfterTimeout 0 name
+        Nothing ->
+            Just <| getEventAfterTimeout 0 name
 
 {-| Get the size of the viewport.
 -}
@@ -72,7 +86,7 @@ jsonResolver resp =
             Err (Http.BadStatus metadata.statusCode)
 
         Http.GoodStatus_ _ body ->
-            case D.decodeString eventDecoder (Debug.log "Body : " body) of
+            case D.decodeString eventDecoder body of
                 Ok value ->
                     Ok value
 
