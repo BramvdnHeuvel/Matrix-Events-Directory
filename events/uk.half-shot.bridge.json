@@ -117,5 +117,39 @@
                 "description": "Link to the protocol, either providing information or referring to a relevant page for the bridge."
             }
         ]
-    }
+    },
+    "examples": [
+        {
+            "name": "Basic example",
+            "description": "",
+            "example": {
+                "bridgebot": "@bridgebot:example.org",
+                "protocol": {
+                    "id": "irc"
+                },
+                "network": {
+                    "id": "example.org"
+                },
+                "channel": {
+                    "id": "#example"
+                }
+            }
+        },
+        {
+            "name": "Basic example 2",
+            "description": "",
+            "example": {
+                "bridgebot": "@bridgebot:example.org",
+                "protocol": {
+                    "id": "irc"
+                },
+                "network": {
+                    "id": "example.org"
+                },
+                "channel": {
+                    "id": "#example"
+                }
+            }
+        }
+    ]
 }

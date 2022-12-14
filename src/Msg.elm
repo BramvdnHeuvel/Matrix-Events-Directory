@@ -2,11 +2,9 @@ module Msg exposing (..)
 
 import Dict exposing (Dict)
 import Element
-import Element.Font exposing (external)
-import Html exposing (s)
-import Html.Attributes exposing (required)
 import Http
 import Json.Decode as D
+import Json.Encode as E
 
 
 
@@ -18,6 +16,7 @@ type alias Model =
     , directory : Maybe Directory
     , events : Dict String EventLoadState
     , eventsLoaded : Int
+    , exampleMatches : ExampleCheck
     , exampleText : String
     , menu : MenuItem
     , showMenuBar : Bool
@@ -57,6 +56,7 @@ type alias Event =
     , eventType : EventType
     , content : Object
     , otherObjects : Dict String Object
+    , examples : List Example
     }
 
 
@@ -96,6 +96,13 @@ type MenuItem
     | BrowseEvent EventSet Event
     | About
 
+type ExampleCheck
+    = DecodesProperly
+    | FailesToDecode String
+    | NotDecodedYet
+
+type alias Example =
+    { name : String, description : String, value : String }
 
 
 -- MSG
@@ -127,7 +134,6 @@ directoryDecoder =
         (D.string |> D.list |> D.field "all")
         (eventSetDecoder |> D.list |> D.field "sets")
 
-
 eventDecoder : D.Decoder Event
 eventDecoder =
     D.map5
@@ -137,6 +143,7 @@ eventDecoder =
             , eventType = c
             , content = d
             , otherObjects = e
+            , examples = []
             }
         )
         (D.field "name" D.string)
@@ -152,6 +159,35 @@ eventDecoder =
             |> D.field "objects"
         )
         |> D.andThen checkRequiredDependencies
+        |> D.andThen
+            (\event ->
+                D.value
+                |> D.andThen
+                    (\v ->
+                        case correctlyDecodesEventValue event v of
+                            Ok () ->
+                                D.succeed (E.encode 4 v)
+                            Err e ->
+                                D.fail e
+                    )
+                |> D.field "example"
+                |> D.andThen
+                    (\v ->
+                        ( D.map2
+                            (\a b ->
+                                { name = a
+                                , description = b
+                                , value = v
+                                }
+                            )
+                            ( D.field "name" D.string )
+                            ( D.field "description" D.string )
+                        )
+                    )
+                |> D.list
+                |> D.field "examples"
+                |> D.map (\d -> { event | examples = d })
+            )
 
 
 eventSetDecoder : D.Decoder EventSet
@@ -363,3 +399,105 @@ fromObjectType ot =
 
         External o ->
             o
+
+-- VERIFY THAT JSON IS CORRECTLY STRUCTURED
+
+correctlyDecodesEvent : Event -> String -> Result String ()
+correctlyDecodesEvent event example =
+    case D.decodeString (decodeEvent event event.content) example of
+        Ok () ->
+            Ok ()
+        
+        Err e ->
+            Err (D.errorToString e)
+
+correctlyDecodesEventValue : Event -> D.Value -> Result String ()
+correctlyDecodesEventValue event example =
+    case D.decodeValue (decodeEvent event event.content) example of
+        Ok () ->
+            Ok ()
+
+        Err e ->
+            Err (D.errorToString e)
+
+decodeEvent : Event -> Object -> D.Decoder ()
+decodeEvent event object =
+    let
+        decodeObject : ObjectType -> D.Decoder ()
+        decodeObject o =
+            ( case o of
+                Text ->
+                    D.string
+                    |> D.map (\_ -> ())
+                Number ->
+                    D.int
+                    |> D.map (\_ -> ())
+                Enum values ->
+                    D.string
+                    |> D.andThen
+                        (\v ->
+                            if List.member v values then
+                                D.succeed v
+                            else
+                                values
+                                |> String.join ", "
+                                |> (++) "Expected value to be one of: "
+                                |> D.fail
+                        )
+                    |> D.map (\_ -> ())
+                ListOf obj ->
+                    D.list (decodeObject obj)
+                    |> D.map (\_ -> ())
+                DictOf obj ->
+                    D.list (decodeObject obj)
+                    |> D.map (\_ -> ())
+                External name ->
+                    case Dict.get name event.otherObjects of
+                        Nothing ->
+                            D.fail ("Could not find definition for object `" ++ name ++ "`")
+                        Just otherObject ->
+                            decodeEvent event otherObject
+                            |> D.map (\_ -> ())
+            )
+    in
+    object
+    |> List.map
+        (\field ->
+            let
+                decoder = D.lazy (\_ -> decodeObject field.objectType)
+            in
+            if field.required then
+                decoder
+                |> D.field field.name
+            else
+                D.value
+                |> D.field field.name
+                |> D.maybe
+                |> D.andThen 
+                    (\r ->
+                        case Debug.log ("Result for field `" ++ field.name ++ "`: ") r of
+                            Nothing ->
+                                D.succeed Nothing
+                            Just _ ->
+                                decoder
+                                |> D.field field.name
+                                |> D.map Just
+                    )
+                |> D.andThen (\_ -> D.succeed ())
+        )
+    |> List.map (\x -> (\_ -> x))
+    |> List.foldl D.andThen (D.map (\_ -> ()) D.value)
+
+opField : String -> D.Decoder () -> D.Decoder ()
+opField field decoder =
+    D.value
+    |> D.field field
+    |> D.maybe
+    |> D.andThen
+        (\v ->
+            case v of
+                Nothing -> D.succeed ()
+                Just _ -> decoder
+        )
+
+

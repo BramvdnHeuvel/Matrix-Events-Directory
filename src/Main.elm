@@ -33,6 +33,7 @@ init _ =
       , events = Dict.empty
       , eventsLoaded = 0
       , exampleText = ""
+      , exampleMatches = NotDecodedYet
       , menu = Home
       , showMenuBar = False
       }
@@ -50,8 +51,16 @@ init _ =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        CheckExample _ ->
-            ( model, Cmd.none )
+        CheckExample e ->
+            case correctlyDecodesEvent e model.exampleText of
+                Ok () ->
+                    ( { model | exampleMatches = DecodesProperly }
+                    , Cmd.none
+                    )
+                Err err ->
+                    ( { model | exampleMatches = FailesToDecode err }
+                    , Cmd.none
+                    )
 
         -- TODO: Write a checker that makes sure the
         --       event is of the expected quality.
@@ -107,7 +116,6 @@ update msg model =
 
                         Err e ->
                             LoadingFailed False name e
-                                |> Debug.log ("Loading event " ++ name ++ " failed: ")
             in
             ( { model
                 | events = Dict.insert name dictValue model.events
@@ -222,7 +230,9 @@ update msg model =
             ( { model | device = device }, Cmd.none )
 
         WriteTestEvent content ->
-            ( { model | exampleText = content }, Cmd.none )
+            ( { model | exampleText = content, exampleMatches = NotDecodedYet }
+            , Cmd.none 
+            )
 
 
 

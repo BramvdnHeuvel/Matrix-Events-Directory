@@ -39,5 +39,6 @@
                 "description": "The type of session description."
             }
         ]
-    }
+    },
+    "examples": []
 }

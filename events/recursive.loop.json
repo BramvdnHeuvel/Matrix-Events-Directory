@@ -2,31 +2,68 @@
     "name": "recursive.loop",
     "description": "This is is recursive and should fail.",
     "eventType": "message",
-    "content": [
-        {
-            "name": "foo",
-            "type": "object",
-            "key": "Foo",
-            "required": true,
-            "description": "The recursive thing."
-        }
-    ],
+    "content": [{
+        "name": "nice",
+        "type": "object",
+        "key": "Foo",
+        "required": true,
+        "description": "The recursive thing."
+    }],
     "objects": {
         "Foo": [{
             "name": "bar",
             "type": "object",
             "key": "Bar",
-            "required": true,
+            "required": false,
             "description": "The sub thing."
         }],
-        "Bar": [
-            {
-                "name": "foo",
-                "type": "object",
-                "key": "Foo",
-                "required": true,
-                "description": "The recursive thing."
+        "Bar": [{
+            "name": "fromBarToFoo",
+            "type": "object",
+            "key": "Foo",
+            "required": true,
+            "description": "The recursive thing."
+        }]
+    },
+    "examples": [{
+        "name": "Basic example",
+        "description": "",
+        "example": {
+            "nice": {
+                "bar": {
+                    "fromBarToFoo": {
+                        "bar": {
+                            "fromBarToFoo": {
+                                "bar": {
+                                    "fromBarToFoo": {
+                                        "bar": {
+                                            "fromBarToFoo": {
+                                                "bar": {
+                                                    "fromBarToFoo": {
+                                                        "bar": {
+                                                            "fromBarToFoo": {
+                                                                "bar": {
+                                                                    "fromBarToFoo": {
+                                                                        "bar": {
+                                                                            "fromBarToFoo": {}
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
-        ]
-    }
+        }
+    },
+    {"name": "Foo", "description": "This is a super cool description, I think. I guess we'll find out!",
+    "example": {"nice": {}}}]
 }

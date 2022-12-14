@@ -19,6 +19,8 @@ import Widget.Customize as Customize
 import Widget.Layout
 import Widget.Material
 import Widget.Material.Color
+import Html exposing (Html)
+import Html.Attributes
 
 
 {-| Create the bar at the top of the page.
@@ -428,10 +430,10 @@ eventPreview onClick event =
             , Layout.loader Nothing
             ]
 
-        LoadingFailed _ name err ->
+        LoadingFailed _ name _ ->
             [ [ Layout.h2 <| text name
               , Widget.iconButton
-                    (Widget.Material.containedButton Layout.primaryPalette)
+                    (Widget.Material.containedButton Layout.secondaryPalette)
                     { text = "Retry"
                     , icon = Layout.getIcon Icons.refresh
                     , onPress = Just (WaitThenRequestEvent name 0)
@@ -468,16 +470,40 @@ showEvent model event =
         |> List.map (Element.column [])
         |> Element.column [ Element.spacing 30 ]
     , [ Input.multiline
-            [ Font.family [ Font.monospace ] ]
+            ( ( Font.family [ Font.monospace ] )
+             :: ( case model.exampleMatches of
+                    DecodesProperly ->
+                        [ backgroundColor Layout.noordstarGreen ]
+                    FailesToDecode _ ->
+                        [ backgroundColor Layout.noordstarRed ]
+                    _ ->
+                        []
+                )
+            )
             { onChange = WriteTestEvent
             , text = model.exampleText
             , placeholder = text "Write a test object!" |> Input.placeholder [] |> Just
             , label = Input.labelAbove [] (Layout.h2 <| text "Test object")
             , spellcheck = False
             }
-      , Widget.textButton
-            (Widget.Material.containedButton Layout.primaryPalette)
-            { text = "Check", onPress = Just (CheckExample event) }
+      , case model.exampleMatches of
+            NotDecodedYet ->
+                Widget.textButton
+                    (Widget.Material.containedButton Layout.secondaryPalette)
+                    { text = "Check", onPress = Just (CheckExample event) }
+            FailesToDecode err ->
+                err
+                |> text
+                |> List.singleton
+                |> p
+                |> Element.el [ Font.family [ Font.monospace ], color Layout.noordstarRed ]
+            DecodesProperly ->
+                "Valid event!"
+                |> text
+                |> List.singleton
+                |> p
+                |> Element.el [ Font.family [ Font.monospace ], color Layout.noordstarGreen ]
+      , showExamples event
       ]
         |> Element.column [ Element.width Element.fill ]
     ]
@@ -559,7 +585,7 @@ showEventSet model set =
 objectTable : Object -> Element Msg
 objectTable o =
     Widget.sortTableV2
-        (Widget.Material.sortTable Layout.primaryPalette
+        (Widget.Material.sortTable Layout.secondaryPalette
             |> Customize.elementTable [ Element.spacing 20, Element.width Element.fill ]
         )
         { content = o
@@ -579,7 +605,7 @@ objectTable o =
                 , value =
                     \{ required } ->
                         Widget.iconButton
-                            (Widget.Material.iconButton Layout.primaryPalette)
+                            (Widget.Material.iconButton Layout.secondaryPalette)
                             { text = "Required"
                             , icon =
                                 (if required then
@@ -606,3 +632,47 @@ objectTable o =
         }
         |> List.singleton
         |> p
+
+showExamples : Event -> Element Msg
+showExamples event =
+    event.examples
+    |> List.map
+        (\example ->
+            [ Layout.h2 <| text example.name
+            , p <| [ text example.description ]
+            , example.value
+                |> String.split "\n"
+                |> List.map Html.text
+                |> List.map List.singleton
+                |> List.map (Html.pre [ Html.Attributes.style "margin" "4px" ])
+                |> List.map Element.html
+                |> Element.column
+                    ( Layout.cardAttributes 
+                    ++ [ Font.family [ Font.monospace ]
+                       , backgroundColor Layout.noordstarWhite
+                       , Element.width Element.fill
+                       , example.value
+                        |> String.split "\n"
+                        |> List.length
+                        |> (\x ->
+                                if x < 5 then
+                                    x * 40
+                                else
+                                    x * 32
+                            )
+                        |> Element.px
+                        |> Element.maximum 1000
+                        |> Element.height
+                       , Element.clipX
+                       , Element.scrollbarX
+                       ]
+                    )
+            ]
+            |> Element.column 
+                [ Element.width Element.fill
+                ]
+        )
+    |> Element.column 
+        [ Element.paddingXY 0 50
+        , Element.spacing 20
+        ]

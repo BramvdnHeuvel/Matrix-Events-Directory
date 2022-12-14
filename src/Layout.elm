@@ -213,3 +213,19 @@ lightPalette =
         , error = Color.white
         }
     }
+
+secondaryPalette : Palette
+secondaryPalette =
+    { primary = secondaryColor
+    , secondary = primaryColor
+    , background = Color.white
+    , surface = Color.white
+    , error = noordstarRed
+    , on =
+        { primary = textOnSecondaryColor
+        , secondary = textOnPrimaryColor
+        , background = Color.black
+        , surface = Color.black
+        , error = Color.white
+        }
+    }
