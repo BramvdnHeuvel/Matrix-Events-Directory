@@ -1,0 +1,59 @@
+{
+    "name": "m.call.candidates",
+    "description": "This event is sent by callers after sending an invite and by the callee after answering. Its purpose is to give the other party additional ICE candidates to try using to communicate.",
+    "eventType": "message",
+    "content": [{
+            "name": "call_id",
+            "type": "string",
+            "required": true,
+            "description": "The ID of the call this event relates to."
+        },
+        {
+            "name": "candidates",
+            "type": "[object]",
+            "key": "Candidate",
+            "required": true,
+            "description": "Array of objects describing the candidates."
+        },
+        {
+            "name": "version",
+            "type": "int",
+            "required": true,
+            "description": "The version of the VoIP specification this messages adheres to. This specification is version 0."
+        }
+    ],
+    "objects": {
+        "Candidate": [{
+                "name": "candidate",
+                "type": "string",
+                "required": true,
+                "description": "The SDP ‘a’ line of the candidate."
+            },
+            {
+                "name": "sdpMLineIndex",
+                "type": "int",
+                "required": true,
+                "description": "The index of the SDP ’m’ line this candidate is intended for."
+            },
+            {
+                "name": "sdpMid",
+                "type": "string",
+                "required": true,
+                "description": "The SDP media type this candidate is intended for."
+            }
+        ]
+    },
+    "examples": [{
+        "name": "Matrix Spec Example",
+        "description": "This is the example presented in the Matrix specification.",
+        "example": {
+            "call_id": "12345",
+            "candidates": [{
+                "candidate": "candidate:863018703 1 udp 2122260223 10.9.64.156 43670 typ host generation 0",
+                "sdpMLineIndex": 0,
+                "sdpMid": "audio"
+            }],
+            "version": 0
+        }
+    }]
+}

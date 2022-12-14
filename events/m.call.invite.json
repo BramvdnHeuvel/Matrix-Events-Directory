@@ -1,19 +1,25 @@
 {
-    "name": "m.call.answer",
-    "description": "This event is sent by the callee when they wish to answer the call.",
+    "name": "m.call.invite",
+    "description": "This event is sent by the caller when they wish to establish a call.",
     "eventType": "message",
     "content": [{
-            "name": "answer",
-            "type": "object",
-            "key": "Answer",
-            "required": true,
-            "description": "The session description object."
-        },
-        {
             "name": "call_id",
             "type": "string",
             "required": true,
-            "description": "The ID of the call this event relates to."
+            "description": "A unique identifier for the call."
+        },
+        {
+            "name": "lifetime",
+            "type": "int",
+            "required": true,
+            "description": "The time in milliseconds that the invite is valid for. Once the invite age exceeds this value, clients should discard it. They should also no longer show the call as awaiting an answer in the UI."
+        },
+        {
+            "name": "offer",
+            "type": "object",
+            "key": "Offer",
+            "required": true,
+            "description": "The session description object"
         },
         {
             "name": "version",
@@ -23,7 +29,7 @@
         }
     ],
     "objects": {
-        "Answer": [{
+        "Offer": [{
                 "name": "sdp",
                 "type": "string",
                 "required": true,
@@ -32,7 +38,7 @@
             {
                 "name": "type",
                 "type": "enum",
-                "key": ["answer"],
+                "key": ["offer"],
                 "required": true,
                 "description": "The type of session description."
             }
@@ -42,11 +48,12 @@
         "name": "Matrix Spec Example",
         "description": "This is the example presented in the Matrix specification.",
         "example": {
-            "answer": {
-                "sdp": "v=0\r\no=- 6584580628695956864 2 IN IP4 127.0.0.1[...]",
-                "type": "answer"
-            },
             "call_id": "12345",
+            "lifetime": 60000,
+            "offer": {
+                "sdp": "v=0\r\no=- 6584580628695956864 2 IN IP4 127.0.0.1[...]",
+                "type": "offer"
+            },
             "version": 0
         }
     }]

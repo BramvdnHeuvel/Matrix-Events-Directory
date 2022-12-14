@@ -1,0 +1,34 @@
+{
+    "name": "m.call.hangup",
+    "description": "Sent by either party to signal their termination of the call. This can be sent either once the call has has been established or before to abort the call.",
+    "eventType": "message",
+    "content": [{
+            "name": "call_id",
+            "type": "string",
+            "required": true,
+            "description": "The ID of the call this event relates to."
+        },
+        {
+            "name": "reason",
+            "type": "enum",
+            "key": ["ice_failed", "invite_timeout"],
+            "required": false,
+            "description": "Optional error reason for the hangup. This should not be provided when the user naturally ends or rejects the call. When there was an error in the call negotiation, this should be ice_failed for when ICE negotiation fails or invite_timeout for when the other party did not answer in time."
+        },
+        {
+            "name": "version",
+            "type": "int",
+            "required": true,
+            "description": "The version of the VoIP specification this messages adheres to. This specification is version 0."
+        }
+    ],
+    "objects": {},
+    "examples": [{
+        "name": "Matrix Spec Example",
+        "description": "This is the example presented in the Matrix specification.",
+        "example": {
+            "call_id": "12345",
+            "version": 0
+        }
+    }]
+}

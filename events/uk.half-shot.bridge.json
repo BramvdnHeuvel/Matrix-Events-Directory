@@ -2,9 +2,8 @@
     "name": "uk.half-shot.bridge",
     "description": "This event is sent to display information about a bridge that is present in the room.",
     "eventType": "state",
-    "state": "The bridge's prefix, followed by the protocol id, followed by the network id, followed by the channel id.", 
-    "content": [
-        {
+    "state": "The bridge's prefix, followed by the protocol id, followed by the network id, followed by the channel id.",
+    "content": [{
             "name": "bridgebot",
             "type": "string",
             "required": true,
@@ -39,8 +38,7 @@
         }
     ],
     "objects": {
-        "Channel": [
-            {
+        "Channel": [{
                 "name": "id",
                 "type": "string",
                 "required": true,
@@ -65,8 +63,7 @@
                 "description": "Link to a connected channel so users may view the bridge on the other side."
             }
         ],
-        "Network": [
-            {
+        "Network": [{
                 "name": "id",
                 "type": "string",
                 "required": true,
@@ -91,8 +88,7 @@
                 "description": "Link to a connected network as an identifier of the network."
             }
         ],
-        "Protocol": [
-            {
+        "Protocol": [{
                 "name": "id",
                 "type": "string",
                 "required": true,
@@ -118,8 +114,7 @@
             }
         ]
     },
-    "examples": [
-        {
+    "examples": [{
             "name": "Basic example",
             "description": "",
             "example": {
