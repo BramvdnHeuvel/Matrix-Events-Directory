@@ -503,7 +503,7 @@ showEvent model event =
                 |> List.singleton
                 |> p
                 |> Element.el [ Font.family [ Font.monospace ], color Layout.noordstarGreen ]
-      , showExamples event
+      , showExamples event (codeBlock model)
       ]
         |> Element.column [ Element.width Element.fill ]
     ]
@@ -633,40 +633,39 @@ objectTable o =
         |> List.singleton
         |> p
 
-showExamples : Event -> Element Msg
-showExamples event =
+showExamples : Event -> (String -> Element Msg) -> Element Msg
+showExamples event codeMaker =
     event.examples
     |> List.map
         (\example ->
             [ Layout.h2 <| text example.name
             , p <| [ text example.description ]
             , example.value
-                |> String.split "\n"
-                |> List.map Html.text
-                |> List.map List.singleton
-                |> List.map (Html.pre [ Html.Attributes.style "margin" "4px" ])
-                |> List.map Element.html
-                |> Element.column
-                    ( Layout.cardAttributes 
-                    ++ [ Font.family [ Font.monospace ]
-                       , backgroundColor Layout.noordstarWhite
-                       , Element.width Element.fill
-                       , example.value
-                        |> String.split "\n"
-                        |> List.length
-                        |> (\x ->
-                                if x < 5 then
-                                    x * 40
-                                else
-                                    x * 32
-                            )
-                        |> Element.px
-                        |> Element.maximum 1000
-                        |> Element.height
-                       , Element.clipX
-                       , Element.scrollbarX
-                       ]
-                    )
+                |> codeMaker
+                -- |> List.singleton
+                -- |> Element.column
+                --     ( Layout.cardAttributes 
+                --     ++ [ Font.family [ Font.monospace ]
+                --        , backgroundColor Layout.noordstarWhite
+                --        , Element.width Element.fill
+                --        , example.value
+                --         |> String.split "\n"
+                --         |> List.length
+                --         |> (\x ->
+                --                 if x < 5 then
+                --                     x * 40
+                --                 else
+                --                     x * 32
+                --             )
+                --         |> Element.px
+                --         |> Element.maximum 1000
+                --         |> Element.height
+                --        , Element.clipX
+                --        , Element.scrollbarX
+                --        , Element.clipY
+                --        , Element.scrollbarY
+                --        ]
+                --     )
             ]
             |> Element.column 
                 [ Element.width Element.fill
@@ -675,4 +674,20 @@ showExamples event =
     |> Element.column 
         [ Element.paddingXY 0 50
         , Element.spacing 20
+        ]
+
+codeBlock : Model -> String -> Element Msg
+codeBlock model code =
+    -- https://github.com/mdgriffith/elm-ui/issues/321
+    Element.row [ Element.width Element.fill, Element.height Element.fill ]
+        [ Element.el
+            [ Element.width (Element.maximum (model.viewportWidth - 150) Element.fill)
+            , Element.scrollbarX
+            , Background.color (Element.rgba 0 0 0 0.1)
+            , Element.htmlAttribute (Html.Attributes.style "white-space" "pre")
+            , Element.padding 10
+            , Font.family [ Font.monospace ]
+            , Border.rounded 15
+            ]
+            (Element.text code)
         ]

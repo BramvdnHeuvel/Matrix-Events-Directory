@@ -65,7 +65,7 @@ maybeGetEvent model name =
 -}
 getViewportSize : Cmd Msg
 getViewportSize =
-    Dom.getViewport
+    [ Dom.getViewport
         |> Task.map
             (\window ->
                 { height = round window.viewport.height
@@ -74,6 +74,12 @@ getViewportSize =
             )
         |> Task.map Widget.Layout.getDeviceClass
         |> Task.perform WindowSize
+    , Dom.getViewport
+        |> Task.map
+            (\window -> round window.viewport.width)
+        |> Task.perform WindowWidth
+    ]
+    |> Cmd.batch
 
 
 {-| Decode an event from a HTTP response string.

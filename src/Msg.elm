@@ -20,6 +20,7 @@ type alias Model =
     , exampleText : String
     , menu : MenuItem
     , showMenuBar : Bool
+    , viewportWidth : Int
     }
 
 
@@ -120,6 +121,7 @@ type Msg
     | ViewMenu MenuItem
     | WaitThenRequestEvent String Int
     | WindowSize Element.DeviceClass
+    | WindowWidth Int
     | WriteTestEvent String
 
 

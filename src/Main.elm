@@ -36,6 +36,7 @@ init _ =
       , exampleMatches = NotDecodedYet
       , menu = Home
       , showMenuBar = False
+      , viewportWidth = 200
       }
     , Cmd.batch
         [ Loader.getDirectory
@@ -228,6 +229,9 @@ update msg model =
 
         WindowSize device ->
             ( { model | device = device }, Cmd.none )
+        
+        WindowWidth width ->
+            ( { model | viewportWidth = width }, Cmd.none )
 
         WriteTestEvent content ->
             ( { model | exampleText = content, exampleMatches = NotDecodedYet }
@@ -241,12 +245,15 @@ update msg model =
 
 subscriptions : Model -> Sub Msg
 subscriptions _ =
-    Browser.Events.onResize
+    [ Browser.Events.onResize
         (\w h ->
             { width = w, height = h }
                 |> Widget.Layout.getDeviceClass
                 |> WindowSize
         )
+    , Browser.Events.onResize (\w _ -> WindowWidth w)
+    ]
+    |> Sub.batch
 
 
 
