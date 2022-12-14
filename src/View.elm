@@ -469,15 +469,17 @@ showEvent model event =
         |> List.map (Element.column [])
         |> Element.column [ Element.spacing 30 ]
     , [ Input.multiline
-            ( ( Font.family [ Font.monospace ] )
-             :: ( case model.exampleMatches of
-                    DecodesProperly ->
-                        [ backgroundColor Layout.noordstarGreen ]
-                    FailesToDecode _ ->
-                        [ backgroundColor Layout.noordstarRed ]
-                    _ ->
-                        []
-                )
+            (Font.family [ Font.monospace ]
+                :: (case model.exampleMatches of
+                        DecodesProperly ->
+                            [ backgroundColor Layout.noordstarGreen ]
+
+                        FailesToDecode _ ->
+                            [ backgroundColor Layout.noordstarRed ]
+
+                        _ ->
+                            []
+                   )
             )
             { onChange = WriteTestEvent
             , text = model.exampleText
@@ -490,18 +492,20 @@ showEvent model event =
                 Widget.textButton
                     (Widget.Material.containedButton Layout.secondaryPalette)
                     { text = "Check", onPress = Just (CheckExample event) }
+
             FailesToDecode err ->
                 err
-                |> text
-                |> List.singleton
-                |> p
-                |> Element.el [ Font.family [ Font.monospace ], color Layout.noordstarRed ]
+                    |> text
+                    |> List.singleton
+                    |> p
+                    |> Element.el [ Font.family [ Font.monospace ], color Layout.noordstarRed ]
+
             DecodesProperly ->
                 "Valid event!"
-                |> text
-                |> List.singleton
-                |> p
-                |> Element.el [ Font.family [ Font.monospace ], color Layout.noordstarGreen ]
+                    |> text
+                    |> List.singleton
+                    |> p
+                    |> Element.el [ Font.family [ Font.monospace ], color Layout.noordstarGreen ]
       , showExamples event (codeBlock model)
       ]
         |> Element.column [ Element.width Element.fill ]
@@ -632,18 +636,20 @@ objectTable o =
         |> List.singleton
         |> p
 
+
 showExamples : Event -> (String -> Element Msg) -> Element Msg
 showExamples event codeMaker =
     event.examples
-    |> List.map
-        (\example ->
-            [ Layout.h2 <| text example.name
-            , p <| [ text example.description ]
-            , example.value
-                |> codeMaker
+        |> List.map
+            (\example ->
+                [ Layout.h2 <| text example.name
+                , p <| [ text example.description ]
+                , example.value
+                    |> codeMaker
+
                 -- |> List.singleton
                 -- |> Element.column
-                --     ( Layout.cardAttributes 
+                --     ( Layout.cardAttributes
                 --     ++ [ Font.family [ Font.monospace ]
                 --        , backgroundColor Layout.noordstarWhite
                 --        , Element.width Element.fill
@@ -665,15 +671,16 @@ showExamples event codeMaker =
                 --        , Element.scrollbarY
                 --        ]
                 --     )
-            ]
-            |> Element.column 
-                [ Element.width Element.fill
                 ]
-        )
-    |> Element.column 
-        [ Element.paddingXY 0 50
-        , Element.spacing 20
-        ]
+                    |> Element.column
+                        [ Element.width Element.fill
+                        ]
+            )
+        |> Element.column
+            [ Element.paddingXY 0 50
+            , Element.spacing 20
+            ]
+
 
 codeBlock : Model -> String -> Element Msg
 codeBlock model code =

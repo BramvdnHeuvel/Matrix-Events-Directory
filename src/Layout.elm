@@ -214,6 +214,7 @@ lightPalette =
         }
     }
 
+
 secondaryPalette : Palette
 secondaryPalette =
     { primary = secondaryColor

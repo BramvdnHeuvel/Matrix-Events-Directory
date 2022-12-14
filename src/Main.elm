@@ -58,6 +58,7 @@ update msg model =
                     ( { model | exampleMatches = DecodesProperly }
                     , Cmd.none
                     )
+
                 Err err ->
                     ( { model | exampleMatches = FailesToDecode err }
                     , Cmd.none
@@ -228,13 +229,13 @@ update msg model =
 
         WindowSize device ->
             ( { model | device = device }, Cmd.none )
-        
+
         WindowWidth width ->
             ( { model | viewportWidth = width }, Cmd.none )
 
         WriteTestEvent content ->
             ( { model | exampleText = content, exampleMatches = NotDecodedYet }
-            , Cmd.none 
+            , Cmd.none
             )
 
 
@@ -252,7 +253,7 @@ subscriptions _ =
         )
     , Browser.Events.onResize (\w _ -> WindowWidth w)
     ]
-    |> Sub.batch
+        |> Sub.batch
 
 
 

@@ -79,7 +79,7 @@ getViewportSize =
             (\window -> round window.viewport.width)
         |> Task.perform WindowWidth
     ]
-    |> Cmd.batch
+        |> Cmd.batch
 
 
 {-| Decode an event from a HTTP response string.
