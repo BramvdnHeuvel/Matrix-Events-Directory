@@ -477,7 +477,7 @@ decodeEvent event object =
                 |> D.maybe
                 |> D.andThen 
                     (\r ->
-                        case Debug.log ("Result for field `" ++ field.name ++ "`: ") r of
+                        case r of
                             Nothing ->
                                 D.succeed Nothing
                             Just _ ->

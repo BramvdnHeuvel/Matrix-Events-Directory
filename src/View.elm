@@ -8,6 +8,7 @@ import Element.Border as Border
 import Element.Events as Events
 import Element.Font as Font
 import Element.Input as Input
+import Html.Attributes
 import Http
 import Layout
 import Material.Icons as Icons
@@ -19,8 +20,6 @@ import Widget.Customize as Customize
 import Widget.Layout
 import Widget.Material
 import Widget.Material.Color
-import Html exposing (Html)
-import Html.Attributes
 
 
 {-| Create the bar at the top of the page.

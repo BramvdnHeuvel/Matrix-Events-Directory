@@ -18,7 +18,7 @@ import Widget.Layout
 getDirectory : Cmd Msg
 getDirectory =
     Http.get
-        { url = "/events/dir.json"
+        { url = "/events/_dir.json"
         , expect = Http.expectJson DirectoryReceived directoryDecoder
         }
 

@@ -199,7 +199,6 @@ update msg model =
 
         ToggleMenuBar ->
             ( { model | showMenuBar = not model.showMenuBar }, Cmd.none )
-                |> Debug.log "Current state of affairs: "
 
         ViewMenu menu ->
             ( { model | showMenuBar = False, menu = menu, exampleText = "" }, Cmd.none )

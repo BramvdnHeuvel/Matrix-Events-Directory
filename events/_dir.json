@@ -11,12 +11,17 @@
         "description": "Interaction to help two users in a room set up a Voice over IP (VoIP) call to each other using the WebRTC 1.0 standard.",
         "image": "voip.png",
         "parts": [{
-            "name": "Set-up",
+            "name": "Call set-up",
             "description": [
-                "You might want to set up a call.",
-                "Using this event, you can do that - maybe."
+                "Using the following events, you can set up a new call."
             ],
-            "events": ["m.call.answer"]
+            "events": ["m.call.invite", "m.call.answer", "m.call.candidates"]
+        }, {
+            "name": "End of call",
+            "description": [
+                "Once the VoIP call is ended by one of the users, the following event is sent to indicate the end of the call"
+            ],
+            "events": ["m.call.hangup"]
         }]
     }]
 }
