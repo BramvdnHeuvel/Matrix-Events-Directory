@@ -3,6 +3,8 @@
 The file `_dir.json` contains a comprehensive list of all events that can be found in this folder.
 When adding new event types, make sure to add your event type names to the `all` key in that file. Please keep the list sorted alphabetically.
 
+**Please do not** change the `sets` key in the `_dir.json` file. This set is curated with care by the moderation team and is not open to change in pull requests that add new custom event types.
+
 Once you have done that, you can add a new file named like your event type with `.json` at the end. For example, if I want to add the new event `org.example.game.score`, I would create a file called `org.example.game.score.json`.
 
 In this file, you create an object the following keys:
@@ -38,3 +40,6 @@ Every field has the following keys:
 - `description` is a value that explains what the key is meant for. It will also note any optional default values.
 
 In the `type` key, you may also wrap the values around `[]` and `{}` symbols respectively, indicating lists and key-value dictionaries respectively. For example, `[string]` indicates a list of strings, `{int}` indicates objects like `{'foo': 3, 'bar': 2}`, `[[int]]` indicates lists of lists of integers like `[[1, 2], [3], [4, 5, 6]]` and `[[{{[{object}]}}]]` indicates a.... well, a deeply nested object.
+
+**Tip:** the format is relatively straightforward, so you can look at other events in this folder as an example!
+

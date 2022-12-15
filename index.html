@@ -6778,6 +6778,8 @@ var $elm$json$Json$Decode$lazy = function (thunk) {
 		thunk,
 		$elm$json$Json$Decode$succeed(_Utils_Tuple0));
 };
+var $elm$core$Basics$pow = _Basics_pow;
+var $author$project$Msg$maxIntLim = A2($elm$core$Basics$pow, 2, 53) - 1;
 var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$json$Json$Decode$maybe = function (decoder) {
 	return $elm$json$Json$Decode$oneOf(
@@ -6817,6 +6819,10 @@ var $elm$core$List$member = F2(
 			},
 			xs);
 	});
+var $elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var $author$project$Msg$minIntLim = (-1) * $author$project$Msg$maxIntLim;
 var $elm$json$Json$Decode$value = _Json_decodeValue;
 var $author$project$Msg$decodeEvent = F2(
 	function (event, object) {
@@ -6831,16 +6837,18 @@ var $author$project$Msg$decodeEvent = F2(
 						$elm$json$Json$Decode$string);
 				case 'Number':
 					return A2(
-						$elm$json$Json$Decode$map,
-						function (_v2) {
-							return _Utils_Tuple0;
+						$elm$json$Json$Decode$andThen,
+						function (i) {
+							return (_Utils_cmp(i, $author$project$Msg$minIntLim) < 0) ? $elm$json$Json$Decode$fail(
+								'Your number ' + ($elm$core$String$fromInt(i) + ' is too low!')) : ((_Utils_cmp($author$project$Msg$maxIntLim, i) < 0) ? $elm$json$Json$Decode$fail(
+								'Your number ' + ($elm$core$String$fromInt(i) + ' is too high!')) : $elm$json$Json$Decode$succeed(_Utils_Tuple0));
 						},
 						$elm$json$Json$Decode$int);
 				case 'Enum':
 					var values = o.a;
 					return A2(
 						$elm$json$Json$Decode$map,
-						function (_v3) {
+						function (_v2) {
 							return _Utils_Tuple0;
 						},
 						A2(
@@ -6854,7 +6862,7 @@ var $author$project$Msg$decodeEvent = F2(
 					var obj = o.a;
 					return A2(
 						$elm$json$Json$Decode$map,
-						function (_v4) {
+						function (_v3) {
 							return _Utils_Tuple0;
 						},
 						$elm$json$Json$Decode$list(
@@ -6863,21 +6871,21 @@ var $author$project$Msg$decodeEvent = F2(
 					var obj = o.a;
 					return A2(
 						$elm$json$Json$Decode$map,
-						function (_v5) {
+						function (_v4) {
 							return _Utils_Tuple0;
 						},
 						$elm$json$Json$Decode$list(
 							decodeObject(obj)));
 				default:
 					var name = o.a;
-					var _v6 = A2($elm$core$Dict$get, name, event.otherObjects);
-					if (_v6.$ === 'Nothing') {
+					var _v5 = A2($elm$core$Dict$get, name, event.otherObjects);
+					if (_v5.$ === 'Nothing') {
 						return $elm$json$Json$Decode$fail('Could not find definition for object `' + (name + '`'));
 					} else {
-						var otherObject = _v6.a;
+						var otherObject = _v5.a;
 						return A2(
 							$elm$json$Json$Decode$map,
-							function (_v7) {
+							function (_v6) {
 								return _Utils_Tuple0;
 							},
 							A2($author$project$Msg$decodeEvent, event, otherObject));
@@ -6889,14 +6897,14 @@ var $author$project$Msg$decodeEvent = F2(
 			$elm$json$Json$Decode$andThen,
 			A2(
 				$elm$json$Json$Decode$map,
-				function (_v12) {
+				function (_v11) {
 					return _Utils_Tuple0;
 				},
 				$elm$json$Json$Decode$value),
 			A2(
 				$elm$core$List$map,
 				function (x) {
-					return function (_v11) {
+					return function (_v10) {
 						return x;
 					};
 				},
@@ -6904,12 +6912,12 @@ var $author$project$Msg$decodeEvent = F2(
 					$elm$core$List$map,
 					function (field) {
 						var decoder = $elm$json$Json$Decode$lazy(
-							function (_v10) {
+							function (_v9) {
 								return decodeObject(field.objectType);
 							});
 						return field.required ? A2($elm$json$Json$Decode$field, field.name, decoder) : A2(
 							$elm$json$Json$Decode$andThen,
-							function (_v9) {
+							function (_v8) {
 								return $elm$json$Json$Decode$succeed(_Utils_Tuple0);
 							},
 							A2(
@@ -7260,9 +7268,6 @@ var $elm$core$Maybe$map = F2(
 			return $elm$core$Maybe$Nothing;
 		}
 	});
-var $elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var $author$project$Msg$identifyObjectType = F2(
 	function (t, key) {
 		if (A2($elm$core$String$startsWith, '[', t) && A2($elm$core$String$endsWith, ']', t)) {
@@ -14100,7 +14105,6 @@ var $icidasset$elm_material_icons$Material$Icons$search = A2(
 				]),
 			_List_Nil)
 		]));
-var $elm$core$Basics$pow = _Basics_pow;
 var $noahzgordon$elm_color_extra$Color$Accessibility$luminance = function (cl) {
 	var f = function (intensity) {
 		return (intensity <= 0.03928) ? (intensity / 12.92) : A2($elm$core$Basics$pow, (intensity + 0.055) / 1.055, 2.4);
