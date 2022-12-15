@@ -431,6 +431,16 @@ correctlyDecodesEventValue event example =
             Err (D.errorToString e)
 
 
+maxIntLim : Int
+maxIntLim =
+    2 ^ 53 - 1
+
+
+minIntLim : Int
+minIntLim =
+    -1 * maxIntLim
+
+
 decodeEvent : Event -> Object -> D.Decoder ()
 decodeEvent event object =
     let
@@ -443,7 +453,23 @@ decodeEvent event object =
 
                 Number ->
                     D.int
-                        |> D.map (\_ -> ())
+                        |> D.andThen
+                            (\i ->
+                                if i < minIntLim then
+                                    "Your number "
+                                        ++ String.fromInt i
+                                        ++ " is too low!"
+                                        |> D.fail
+
+                                else if maxIntLim < i then
+                                    "Your number "
+                                        ++ String.fromInt i
+                                        ++ " is too high!"
+                                        |> D.fail
+
+                                else
+                                    D.succeed ()
+                            )
 
                 Enum values ->
                     D.string
