@@ -206,7 +206,51 @@ backgroundColor =
 homePage : Model -> Element Msg
 homePage model =
     [ Layout.h2 <| text "Matrix Events Home"
-    , p [ text "Matrix Events is an unofficial registry of Matrix events." ]
+    , p [ text "This website is an unofficial directory of event types that can be found in the Matrix ecosystem." ]
+    , text "Looking up existing event types"
+        |> Layout.bold
+        |> Layout.h3
+        |> Element.el [ Element.paddingEach { top = 40, left = 0, right = 0, bottom = 0 } ]
+    , p
+        [ text "You may have encountered an event type that you don't know. If you would like to look it up, you can find more information on the search page. "
+        , Layout.bold <| text "BE CAREFUL"
+        , text ": some event types are prone to change and may not be backwards compatible for the future! "
+        , text "You can interpret these events in your client if you wish, but not all event types are safe to build on top of."
+        ]
+    , p
+        [ text "Start looking for a custom event type: "
+        , Element.el
+            (Layout.cardAttributes ++ [ Events.onClick (ViewMenu (Search "")) ])
+            (text "Search")
+        ]
+    , text "Browse recommended events"
+        |> Layout.bold
+        |> Layout.h3
+        |> Element.el [ Element.paddingEach { top = 40, left = 0, right = 0, bottom = 0 } ]
+    , p
+        [ text "The browse section contains mature event types that you can build on. "
+        , text "If you would like to create annotations, play chess, or perform another non-spec action, "
+        , text "you might be able to interoperate with other clients and bots if you use those event types!"
+        ]
+    , p
+        [ text "Start browsing for ideas and projects: "
+        , Element.el
+            (Layout.cardAttributes ++ [ Events.onClick (ViewMenu BrowseEventSetList) ])
+            (text "Browse")
+        ]
+    , text "About us"
+        |> Layout.bold
+        |> Layout.h3
+        |> Element.el [ Element.paddingEach { top = 40, left = 0, right = 0, bottom = 0 } ]
+    , p
+        [ text "What is the website? Whom is it for? Read more on this page."
+        ]
+    , p
+        [ text "Learn more about this custom event type directory: "
+        , Element.el
+            (Layout.cardAttributes ++ [ Events.onClick (ViewMenu About) ])
+            (text "About")
+        ]
     , case model.directory of
         Nothing ->
             "Loading event directory..."

@@ -11,6 +11,13 @@
         "description": "Interaction to help two users in a room set up a Voice over IP (VoIP) call to each other using the WebRTC 1.0 standard.",
         "image": "voip.png",
         "parts": [{
+            "name": "Disclaimer",
+            "description": [
+                "Since this set of VoIP events is part of the Matrix spec, they do not need to be in this directory.",
+                "For the time being, however, they serve a demonstration purpose."
+            ],
+            "events": []
+        }, {
             "name": "Call set-up",
             "description": [
                 "Using the following events, you can set up a new call."

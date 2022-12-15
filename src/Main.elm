@@ -94,8 +94,8 @@ update msg model =
                             (\m ->
                                 d.all
                                     |> List.length
-                                    |> (*) 500
-                                    -- On average, load one event every 500ms
+                                    |> (*) 250
+                                    -- On average, load one event every 250ms
                                     |> Random.int 1
                                     |> Random.generate m
                             )
