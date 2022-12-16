@@ -6771,6 +6771,7 @@ var $author$project$Msg$WaitThenRequestEvent = F2(
 		return {$: 'WaitThenRequestEvent', a: a, b: b};
 	});
 var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$bool = _Json_decodeBool;
 var $elm$json$Json$Decode$fail = _Json_fail;
 var $elm$json$Json$Decode$lazy = function (thunk) {
 	return A2(
@@ -6828,10 +6829,17 @@ var $author$project$Msg$decodeEvent = F2(
 	function (event, object) {
 		var decodeObject = function (o) {
 			switch (o.$) {
-				case 'Text':
+				case 'Boolean':
 					return A2(
 						$elm$json$Json$Decode$map,
 						function (_v1) {
+							return _Utils_Tuple0;
+						},
+						$elm$json$Json$Decode$bool);
+				case 'Text':
+					return A2(
+						$elm$json$Json$Decode$map,
+						function (_v2) {
 							return _Utils_Tuple0;
 						},
 						$elm$json$Json$Decode$string);
@@ -6848,7 +6856,7 @@ var $author$project$Msg$decodeEvent = F2(
 					var values = o.a;
 					return A2(
 						$elm$json$Json$Decode$map,
-						function (_v2) {
+						function (_v3) {
 							return _Utils_Tuple0;
 						},
 						A2(
@@ -6862,7 +6870,7 @@ var $author$project$Msg$decodeEvent = F2(
 					var obj = o.a;
 					return A2(
 						$elm$json$Json$Decode$map,
-						function (_v3) {
+						function (_v4) {
 							return _Utils_Tuple0;
 						},
 						$elm$json$Json$Decode$list(
@@ -6871,21 +6879,21 @@ var $author$project$Msg$decodeEvent = F2(
 					var obj = o.a;
 					return A2(
 						$elm$json$Json$Decode$map,
-						function (_v4) {
+						function (_v5) {
 							return _Utils_Tuple0;
 						},
 						$elm$json$Json$Decode$list(
 							decodeObject(obj)));
 				default:
 					var name = o.a;
-					var _v5 = A2($elm$core$Dict$get, name, event.otherObjects);
-					if (_v5.$ === 'Nothing') {
+					var _v6 = A2($elm$core$Dict$get, name, event.otherObjects);
+					if (_v6.$ === 'Nothing') {
 						return $elm$json$Json$Decode$fail('Could not find definition for object `' + (name + '`'));
 					} else {
-						var otherObject = _v5.a;
+						var otherObject = _v6.a;
 						return A2(
 							$elm$json$Json$Decode$map,
-							function (_v6) {
+							function (_v7) {
 								return _Utils_Tuple0;
 							},
 							A2($author$project$Msg$decodeEvent, event, otherObject));
@@ -6897,14 +6905,14 @@ var $author$project$Msg$decodeEvent = F2(
 			$elm$json$Json$Decode$andThen,
 			A2(
 				$elm$json$Json$Decode$map,
-				function (_v11) {
+				function (_v12) {
 					return _Utils_Tuple0;
 				},
 				$elm$json$Json$Decode$value),
 			A2(
 				$elm$core$List$map,
 				function (x) {
-					return function (_v10) {
+					return function (_v11) {
 						return x;
 					};
 				},
@@ -6912,12 +6920,12 @@ var $author$project$Msg$decodeEvent = F2(
 					$elm$core$List$map,
 					function (field) {
 						var decoder = $elm$json$Json$Decode$lazy(
-							function (_v9) {
+							function (_v10) {
 								return decodeObject(field.objectType);
 							});
 						return field.required ? A2($elm$json$Json$Decode$field, field.name, decoder) : A2(
 							$elm$json$Json$Decode$andThen,
-							function (_v8) {
+							function (_v9) {
 								return $elm$json$Json$Decode$succeed(_Utils_Tuple0);
 							},
 							A2(
@@ -7242,7 +7250,7 @@ var $author$project$Msg$eventTypeDecoder = function (state) {
 		$elm$json$Json$Decode$string);
 };
 var $elm$json$Json$Decode$map5 = _Json_map5;
-var $elm$json$Json$Decode$bool = _Json_decodeBool;
+var $author$project$Msg$Boolean = {$: 'Boolean'};
 var $author$project$Msg$DictOf = function (a) {
 	return {$: 'DictOf', a: a};
 };
@@ -7289,6 +7297,8 @@ var $author$project$Msg$identifyObjectType = F2(
 						A3($elm$core$String$slice, 1, -1, t)));
 			} else {
 				switch (t) {
+					case 'bool':
+						return $elm$json$Json$Decode$succeed($author$project$Msg$Boolean);
 					case 'int':
 						return $elm$json$Json$Decode$succeed($author$project$Msg$Number);
 					case 'string':
@@ -7604,7 +7614,7 @@ var $author$project$Main$update = F2(
 											A2(
 												$elm$random$Random$int,
 												1,
-												500 * $elm$core$List$length(d.all)));
+												250 * $elm$core$List$length(d.all)));
 									},
 									A2($elm$core$List$map, $author$project$Msg$WaitThenRequestEvent, d.all))));
 					} else {
@@ -15845,6 +15855,12 @@ var $author$project$View$failedEvent = function (state) {
 		return $mdgriffith$elm_ui$Element$none;
 	}
 };
+var $author$project$Layout$h3 = $mdgriffith$elm_ui$Element$el(
+	_List_fromArray(
+		[
+			$mdgriffith$elm_ui$Element$Region$heading(3),
+			$mdgriffith$elm_ui$Element$Font$size(23)
+		]));
 var $Orasund$elm_ui_widgets$Internal$ProgressIndicator$circularProgressIndicator = F2(
 	function (style, maybeProgress) {
 		return style.elementFunction(maybeProgress);
@@ -16017,6 +16033,40 @@ var $Orasund$elm_ui_widgets$Internal$Material$ProgressIndicator$progressIndicato
 var $Orasund$elm_ui_widgets$Widget$Material$progressIndicator = $Orasund$elm_ui_widgets$Internal$Material$ProgressIndicator$progressIndicator;
 var $author$project$Layout$loader = $Orasund$elm_ui_widgets$Widget$circularProgressIndicator(
 	$Orasund$elm_ui_widgets$Widget$Material$progressIndicator($author$project$Layout$primaryPalette));
+var $mdgriffith$elm_ui$Internal$Model$paddingName = F4(
+	function (top, right, bottom, left) {
+		return 'pad-' + ($elm$core$String$fromInt(top) + ('-' + ($elm$core$String$fromInt(right) + ('-' + ($elm$core$String$fromInt(bottom) + ('-' + $elm$core$String$fromInt(left)))))));
+	});
+var $mdgriffith$elm_ui$Element$paddingEach = function (_v0) {
+	var top = _v0.top;
+	var right = _v0.right;
+	var bottom = _v0.bottom;
+	var left = _v0.left;
+	if (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) {
+		var topFloat = top;
+		return A2(
+			$mdgriffith$elm_ui$Internal$Model$StyleClass,
+			$mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				$mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				'p-' + $elm$core$String$fromInt(top),
+				topFloat,
+				topFloat,
+				topFloat,
+				topFloat));
+	} else {
+		return A2(
+			$mdgriffith$elm_ui$Internal$Model$StyleClass,
+			$mdgriffith$elm_ui$Internal$Flag$padding,
+			A5(
+				$mdgriffith$elm_ui$Internal$Model$PaddingStyle,
+				A4($mdgriffith$elm_ui$Internal$Model$paddingName, top, right, bottom, left),
+				top,
+				right,
+				bottom,
+				left));
+	}
+};
 var $elm$core$Dict$values = function (dict) {
 	return A3(
 		$elm$core$Dict$foldr,
@@ -16042,7 +16092,104 @@ var $author$project$View$homePage = function (model) {
 				$author$project$View$p(
 				_List_fromArray(
 					[
-						$mdgriffith$elm_ui$Element$text('Matrix Events is an unofficial registry of Matrix events.')
+						$mdgriffith$elm_ui$Element$text('This website is an unofficial directory of event types that can be found in the Matrix ecosystem.')
+					])),
+				A2(
+				$mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$paddingEach(
+						{bottom: 0, left: 0, right: 0, top: 40})
+					]),
+				$author$project$Layout$h3(
+					$author$project$Layout$bold(
+						$mdgriffith$elm_ui$Element$text('Looking up existing event types')))),
+				$author$project$View$p(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$text('You may have encountered an event type that you don\'t know. If you would like to look it up, you can find more information on the search page. '),
+						$author$project$Layout$bold(
+						$mdgriffith$elm_ui$Element$text('BE CAREFUL')),
+						$mdgriffith$elm_ui$Element$text(': some event types are prone to change and may not be backwards compatible for the future! '),
+						$mdgriffith$elm_ui$Element$text('You can interpret these events in your client if you wish, but not all event types are safe to build on top of.')
+					])),
+				$author$project$View$p(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$text('Start looking for a custom event type: '),
+						A2(
+						$mdgriffith$elm_ui$Element$el,
+						_Utils_ap(
+							$author$project$Layout$cardAttributes,
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$Events$onClick(
+									$author$project$Msg$ViewMenu(
+										$author$project$Msg$Search('')))
+								])),
+						$mdgriffith$elm_ui$Element$text('Search'))
+					])),
+				A2(
+				$mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$paddingEach(
+						{bottom: 0, left: 0, right: 0, top: 40})
+					]),
+				$author$project$Layout$h3(
+					$author$project$Layout$bold(
+						$mdgriffith$elm_ui$Element$text('Browse recommended events')))),
+				$author$project$View$p(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$text('The browse section contains mature event types that you can build on. '),
+						$mdgriffith$elm_ui$Element$text('If you would like to create annotations, play chess, or perform another non-spec action, '),
+						$mdgriffith$elm_ui$Element$text('you might be able to interoperate with other clients and bots if you use those event types!')
+					])),
+				$author$project$View$p(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$text('Start browsing for ideas and projects: '),
+						A2(
+						$mdgriffith$elm_ui$Element$el,
+						_Utils_ap(
+							$author$project$Layout$cardAttributes,
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$Events$onClick(
+									$author$project$Msg$ViewMenu($author$project$Msg$BrowseEventSetList))
+								])),
+						$mdgriffith$elm_ui$Element$text('Browse'))
+					])),
+				A2(
+				$mdgriffith$elm_ui$Element$el,
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$paddingEach(
+						{bottom: 0, left: 0, right: 0, top: 40})
+					]),
+				$author$project$Layout$h3(
+					$author$project$Layout$bold(
+						$mdgriffith$elm_ui$Element$text('About us')))),
+				$author$project$View$p(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$text('What is the website? Whom is it for? Read more on this page.')
+					])),
+				$author$project$View$p(
+				_List_fromArray(
+					[
+						$mdgriffith$elm_ui$Element$text('Learn more about this custom event type directory: '),
+						A2(
+						$mdgriffith$elm_ui$Element$el,
+						_Utils_ap(
+							$author$project$Layout$cardAttributes,
+							_List_fromArray(
+								[
+									$mdgriffith$elm_ui$Element$Events$onClick(
+									$author$project$Msg$ViewMenu($author$project$Msg$About))
+								])),
+						$mdgriffith$elm_ui$Element$text('About'))
 					])),
 				function () {
 				var _v0 = model.directory;
@@ -16101,12 +16248,6 @@ var $author$project$View$homePage = function (model) {
 						model.directory)))
 			]));
 };
-var $author$project$Layout$h3 = $mdgriffith$elm_ui$Element$el(
-	_List_fromArray(
-		[
-			$mdgriffith$elm_ui$Element$Region$heading(3),
-			$mdgriffith$elm_ui$Element$Font$size(23)
-		]));
 var $elm$core$List$intersperse = F2(
 	function (sep, xs) {
 		if (!xs.b) {
@@ -16125,40 +16266,6 @@ var $elm$core$List$intersperse = F2(
 			return A2($elm$core$List$cons, hd, spersed);
 		}
 	});
-var $mdgriffith$elm_ui$Internal$Model$paddingName = F4(
-	function (top, right, bottom, left) {
-		return 'pad-' + ($elm$core$String$fromInt(top) + ('-' + ($elm$core$String$fromInt(right) + ('-' + ($elm$core$String$fromInt(bottom) + ('-' + $elm$core$String$fromInt(left)))))));
-	});
-var $mdgriffith$elm_ui$Element$paddingEach = function (_v0) {
-	var top = _v0.top;
-	var right = _v0.right;
-	var bottom = _v0.bottom;
-	var left = _v0.left;
-	if (_Utils_eq(top, right) && (_Utils_eq(top, bottom) && _Utils_eq(top, left))) {
-		var topFloat = top;
-		return A2(
-			$mdgriffith$elm_ui$Internal$Model$StyleClass,
-			$mdgriffith$elm_ui$Internal$Flag$padding,
-			A5(
-				$mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-				'p-' + $elm$core$String$fromInt(top),
-				topFloat,
-				topFloat,
-				topFloat,
-				topFloat));
-	} else {
-		return A2(
-			$mdgriffith$elm_ui$Internal$Model$StyleClass,
-			$mdgriffith$elm_ui$Internal$Flag$padding,
-			A5(
-				$mdgriffith$elm_ui$Internal$Model$PaddingStyle,
-				A4($mdgriffith$elm_ui$Internal$Model$paddingName, top, right, bottom, left),
-				top,
-				right,
-				bottom,
-				left));
-	}
-};
 var $author$project$View$navigationBar = function (items) {
 	return A2(
 		$mdgriffith$elm_ui$Element$row,
@@ -17679,6 +17786,8 @@ var $Orasund$elm_ui_widgets$Widget$Customize$elementTable = F2(
 	});
 var $author$project$Msg$fromObjectType = function (ot) {
 	switch (ot.$) {
+		case 'Boolean':
+			return 'bool';
 		case 'Number':
 			return 'int';
 		case 'Text':
