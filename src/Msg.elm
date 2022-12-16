@@ -80,7 +80,8 @@ type alias Field =
 
 
 type ObjectType
-    = Text
+    = Boolean
+    | Text
     | Number
     | Enum (List String)
     | ListOf ObjectType
@@ -288,6 +289,9 @@ identifyObjectType t key =
 
     else
         case t of
+            "bool" ->
+                D.succeed Boolean
+
             "int" ->
                 D.succeed Number
 
@@ -388,6 +392,9 @@ checkRequiredDependencies event =
 fromObjectType : ObjectType -> String
 fromObjectType ot =
     case ot of
+        Boolean ->
+            "bool"
+
         Number ->
             "int"
 
@@ -447,6 +454,10 @@ decodeEvent event object =
         decodeObject : ObjectType -> D.Decoder ()
         decodeObject o =
             case o of
+                Boolean ->
+                    D.bool
+                        |> D.map (\_ -> ())
+
                 Text ->
                     D.string
                         |> D.map (\_ -> ())
