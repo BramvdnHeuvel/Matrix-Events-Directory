@@ -1,6 +1,6 @@
 # Matrix Events Directory
 
-This repository is an unofficial directory of event types that can be found in the Matrix ecosystem. [View website](https://matrix-event.noordstar.me/).
+This repository is an unofficial directory of event types that can be found in the Matrix ecosystem. [View website](https://matrix.directory/).
 
 If you're a client developer, this directory should help you in three ways:
 
@@ -14,7 +14,7 @@ If you're a client developer, this directory should help you in three ways:
 
 ## How to browse the repository
 
-You can view the rendered website [here](https://matrix-event.noordstar.me/).
+You can view the rendered website [here](https://matrix-event.directory/).
 
 ## How to add custom events.
 
