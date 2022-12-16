@@ -1,0 +1,78 @@
+{
+    "name": "com.github.TheBoard.page",
+    "description": "This is a structure feature of TheBoard. A page is just a frame/box. It is only rendered as a guide.",
+    "eventType": "message",
+    "sources": [
+        "https://github.com/toger5/TheBoard/blob/main/spec.md",
+        "https://github.com/BramvdnHeuvel/Matrix-Events-Directory/issues/1"
+    ],
+    "content": [{
+        "name": "dinSize",
+        "type": "string",
+        "required": true,
+        "description": "Unknown field. Lacks documentation."
+    }, {
+        "name": "grid",
+        "type": "string",
+        "required": true,
+        "description": "Value that may add a custom grid to the page. The documentation is not very clear about what it means."
+    }, {
+        "name": "label",
+        "type": "string",
+        "required": true,
+        "description": "Page label."
+    }, {
+        "name": "position",
+        "type": "object",
+        "key": "Position",
+        "required": true,
+        "description": "The position of the page."
+    }, {
+        "name": "size",
+        "type": "object",
+        "key": "Size",
+        "required": true,
+        "description": "The size of the page."
+    }],
+    "objects": {
+        "Position": [{
+            "name": "x",
+            "type": "int",
+            "required": true,
+            "description": "x position of the object."
+        }, {
+            "name": "y",
+            "type": "int",
+            "required": true,
+            "description": "y position of the object."
+        }],
+        "Size": [{
+            "name": "width",
+            "type": "int",
+            "required": true,
+            "description": "The object's width."
+        }, {
+            "name": "height",
+            "type": "int",
+            "required": true,
+            "description": "The object's height."
+        }]
+    },
+    "examples": [{
+        "name": "Page example",
+        "description": "This example was provided in the specification of the event type.",
+        "example": {
+            "position": {
+                "x": 0,
+                "y": 0
+            },
+            "size": {
+                "width": 0,
+                "height": 0
+            },
+            "grid": "",
+            "dinSize": "",
+            "label": ""
+        }
+    }]
+}

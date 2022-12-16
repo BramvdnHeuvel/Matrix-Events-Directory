@@ -11,6 +11,7 @@ In this file, you create an object the following keys:
 
 - `name` is the name of your event type. (For example: `org.example.game.score`)
 - `description` is a description of what your event type is used for.
+- `sources` is an optional list of URLs where you can refer to documentation, relevant discussions and information that can provide people with more info about the event type.
 - `eventType` is the type of event this can be sent as. This is one of `message`, `state` or `ephemeral`.
 - `state` is an optional key that you only have to include if `eventType` is `state`. In that case, this key is a string explaining what the value of the state key is intended to be.
 - `content` is a list of fields that your event's `content` key will have.

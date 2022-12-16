@@ -1,0 +1,23 @@
+{
+    "name": "com.github.TheBoard.commit",
+    "description": "Commit event for TheBoard whiteboard rooms. This event exists for loading performance reasons. After a defined amount of events or on user request, a commit can be sent. This commit contains all non-redacted events to date.",
+    "sources": [
+        "https://github.com/toger5/TheBoard/blob/main/spec.md",
+        "https://github.com/BramvdnHeuvel/Matrix-Events-Directory/issues/1"
+    ],
+    "eventType": "message",
+    "content": [{
+        "name": "url",
+        "type": "string",
+        "required": true,
+        "description": "MXC URL to the file (called a `commitFile`) that has been uploaded to a Matrix file server."
+    }],
+    "objects": {},
+    "examples": [{
+        "name": "Empty example",
+        "description": "This example was provided in the specification of the event type.",
+        "example": {
+            "url": ""
+        }
+    }]
+}

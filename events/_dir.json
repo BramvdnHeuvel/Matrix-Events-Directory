@@ -1,5 +1,9 @@
 {
     "all": [
+        "com.github.TheBoard",
+        "com.github.TheBoard.commit",
+        "com.github.TheBoard.object",
+        "com.github.TheBoard.page",
         "m.call.answer",
         "m.call.candidates",
         "m.call.hangup",

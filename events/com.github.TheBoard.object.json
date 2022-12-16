@@ -1,0 +1,213 @@
+{
+    "name": "com.github.TheBoard.object",
+    "description": "Draw event in a TheBoard whiteboard room. This event might not be compatible with canonical JSON specifications.",
+    "eventType": "message",
+    "sources": [
+        "https://github.com/toger5/TheBoard/blob/main/spec.md",
+        "https://github.com/BramvdnHeuvel/Matrix-Events-Directory/issues/1"
+    ],
+    "content": [{
+        "name": "color",
+        "type": "string",
+        "required": false,
+        "description": "The text color. To be expecte when `objtype` has value `text`."
+    }, {
+        "name": "fontFamily",
+        "type": "string",
+        "required": false,
+        "description": "The font family of text. To be expected when `objtype` has value `text`."
+    }, {
+        "name": "fontSize",
+        "type": "int",
+        "required": false,
+        "description": "The size of text. To be expected when `objtype` has value `text`."
+    }, {
+        "name": "objtype",
+        "type": "enum",
+        "key": ["image", "path", "pdf", "text"],
+        "required": true,
+        "description": ""
+    }, {
+        "name": "pages",
+        "type": "[object]",
+        "key": "Page",
+        "required": false,
+        "description": "A list of pages part of a document. To be expected when `objtype` has value `pdf`."
+    }, {
+        "name": "paths",
+        "type": "[object]",
+        "key": "Path",
+        "required": false,
+        "description": "A list of path segments. To be expected when `objtype` has value `path`."
+    }, {
+        "name": "position",
+        "type": "object",
+        "key": "Position",
+        "required": false,
+        "description": "The position of the object. To be expected when `objtype` has value `text` or `image`."
+    }, {
+        "name": "size",
+        "type": "object",
+        "key": "Size",
+        "required": false,
+        "description": "The size of the object. To be expected when `objtype` has value `image`."
+    }, {
+        "name": "text",
+        "type": "string",
+        "required": false,
+        "description": "Text content of the object. To be expected when `objtype` has value `text`."
+    }, {
+        "name": "url",
+        "type": "string",
+        "required": false,
+        "description": "The MXC URL where the content can be found. To be expected when `objtype` has value `image` or `pdf`."
+    }, {
+        "name": "version",
+        "type": "int",
+        "required": false,
+        "description": "The version of the spec. The current version is 3."
+    }],
+    "objects": {
+        "Page": [{
+            "name": "pdfPageIndex",
+            "type": "int",
+            "required": true,
+            "description": "The page's index in the PDF file."
+        }, {
+            "name": "position",
+            "type": "object",
+            "key": "Position",
+            "required": true,
+            "description": "The position of the page on screen."
+        }, {
+            "name": "size",
+            "type": "object",
+            "key": "Size",
+            "required": true,
+            "description": "The size of the page on screen."
+        }],
+        "Path": [{
+            "name": "closed",
+            "type": "bool",
+            "required": true,
+            "description": "Whether the path completes. If so, the last and the first segment vertex are connected."
+        }, {
+            "name": "fillColor",
+            "type": "string",
+            "required": false,
+            "description": "RGBA Color used for the path's infill. Defaults to a `#00000000` transparent color."
+        }, {
+            "name": "position",
+            "type": "object",
+            "key": "Position",
+            "required": true,
+            "description": "Position of the path relative to the screen. The position is the top left corner of the path, and all segment positions are relative to it."
+        }, {
+            "name": "segments",
+            "type": "[string]",
+            "required": true,
+            "description": "List of segments describing the shape of the path."
+        }, {
+            "name": "strokeColor",
+            "type": "string",
+            "required": true,
+            "description": "RGBA Color used to indicate the color of the path."
+        }, {
+            "name": "strokeWidth",
+            "type": "int",
+            "required": true,
+            "description": "Width of the drawn path. If set to zero, only the infill is colored and it appears with no border."
+        }],
+        "Position": [{
+            "name": "x",
+            "type": "int",
+            "required": true,
+            "description": "x position of the object."
+        }, {
+            "name": "y",
+            "type": "int",
+            "required": true,
+            "description": "y position of the object."
+        }],
+        "Size": [{
+            "name": "width",
+            "type": "int",
+            "required": true,
+            "description": "The object's width."
+        }, {
+            "name": "height",
+            "type": "int",
+            "required": true,
+            "description": "The object's height."
+        }]
+    },
+    "examples": [{
+        "name": "Path example",
+        "description": "This example was provided in the specification of the event type.",
+        "example": {
+            "version": 3,
+            "objtype": "path",
+            "paths": [{
+                "segments": [
+                    "0.0 0.0 0.0 0.0 0.0 0.0"
+                ],
+                "closed": false,
+                "fillColor": "#ef292914",
+                "strokeColor": "#ef2929ff",
+                "strokeWidth": 0,
+                "position": {
+                    "x": 0,
+                    "y": 0
+                }
+            }]
+        }
+    }, {
+        "name": "Text example",
+        "description": "This example was provided in the specification of the event type.",
+        "example": {
+            "version": 3,
+            "text": "Hello World",
+            "fontSize": 20,
+            "fontFamily": "",
+            "color": "#000",
+            "position": {
+                "x": 100,
+                "y": 0
+            },
+            "objtype": "text"
+        }
+    }, {
+        "name": "Image example",
+        "description": "This example was provided in the specification of the event type.",
+        "example": {
+            "url": "",
+            "size": {
+                "width": 0,
+                "height": 0
+            },
+            "position": {
+                "x": 0,
+                "y": 0
+            },
+            "objtype": "image"
+        }
+    }, {
+        "name": "PDF example",
+        "description": "This example was provided in the specification of the event type.",
+        "example": {
+            "url": "",
+            "objtype": "pdf",
+            "pages": [{
+                "pdfPageIndex": 0,
+                "position": {
+                    "x": 0,
+                    "y": 0
+                },
+                "size": {
+                    "width": 0,
+                    "height": 0
+                }
+            }]
+        }
+    }]
+}

@@ -1,0 +1,56 @@
+{
+    "name": "com.github.TheBoard",
+    "description": "State key indicating the a Matrix room is to be interpreted as a TheBoard whiteboard room.",
+    "sources": [
+        "https://github.com/toger5/TheBoard/blob/main/spec.md",
+        "https://github.com/BramvdnHeuvel/Matrix-Events-Directory/issues/1"
+    ],
+    "eventType": "state",
+    "state": "An empty string.",
+    "content": [{
+        "name": "lastCommit",
+        "type": "string",
+        "required": false,
+        "description": "Event ID of the most recent `com.github.TheBoard.commit` event."
+    }, {
+        "name": "settings",
+        "type": "object",
+        "key": "Settings",
+        "required": false,
+        "description": "Custom settings for the whiteboard room."
+    }],
+    "objects": {
+        "Settings": [{
+            "name": "colorpalette",
+            "type": "[string]",
+            "required": false,
+            "description": "Custom array of RGB-colors. A darker variant of each color will be calculated and displayed automatically. It is recommended to provide no more than 10 colors."
+        }, {
+            "name": "layers",
+            "type": "[string]",
+            "required": false,
+            "description": "Layers are rooms that are used as sub-layers of a larger whiteboard."
+        }, {
+            "name": "isLayer",
+            "type": "bool",
+            "required": false,
+            "description": "Whether the room is a layer. In that case, it is not a whiteboard room and should be considered in the context of the other rooms listed in the `layers` key."
+        }]
+    },
+    "examples": [{
+        "name": "Minimalistic example",
+        "description": "This is the most common content of a newly create TheBoard whiteboard room.",
+        "example": {}
+    }, {
+        "name": "Basic example",
+        "description": "This example was provided in the specification of the event type.",
+        "example": {
+            "lastCommit": "commitID",
+            "settings": {
+                "colorpalette": ["color"],
+                "layers": ["roomId"],
+                "isLayer": false
+            }
+        }
+    }]
+}
