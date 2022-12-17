@@ -1,6 +1,9 @@
 {
     "name": "uk.half-shot.bridge",
     "description": "This event is sent to display information about a bridge that is present in the room.",
+    "sources": [
+        "https://github.com/matrix-org/matrix-spec-proposals/pull/2346"
+    ],
     "eventType": "state",
     "state": "The bridge's prefix, followed by the protocol id, followed by the network id, followed by the channel id.",
     "content": [{
@@ -26,7 +29,7 @@
             "name": "network",
             "type": "object",
             "key": "Network",
-            "required": true,
+            "required": false,
             "description": "The specific network the bridge is connected to."
         },
         {
