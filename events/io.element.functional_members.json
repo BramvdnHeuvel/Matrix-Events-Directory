@@ -1,0 +1,25 @@
+{
+    "name": "io.element.functional_members",
+    "description": "This event adds the ability to exclude functional members like bridge bots from being present in room summaries like the dynamically generated room name.",
+    "sources": [
+        "https://github.com/vector-im/element-meta/blob/develop/spec/functional_members.md"
+    ],
+    "eventType": "state",
+    "state": "An empty string.",
+    "content": [{
+        "name": "service_members",
+        "type": "[string]",
+        "required": false,
+        "description": "If the Matrix user ID of a room member is included in this list, the client is recommended to exclude the Matrix user from room summaries."
+    }],
+    "objects": {},
+    "examples": [{
+        "name": "Spec example",
+        "description": "This example was provided in the specification of the event type.",
+        "example": {
+            "service_members": [
+                "@slackbot:matrix.org"
+            ]
+        }
+    }]
+}
