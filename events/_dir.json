@@ -4,6 +4,7 @@
         "com.github.TheBoard.commit",
         "com.github.TheBoard.object",
         "com.github.TheBoard.page",
+        "io.element.functional_members",
         "m.call.answer",
         "m.call.candidates",
         "m.call.hangup",
